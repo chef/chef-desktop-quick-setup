@@ -107,16 +107,6 @@ resource "azurerm_linux_virtual_machine" "automate2" {
     Environment = "Chef Desktop flow"
     Team = "Chef Desktop"
   }
-  # provisioner "file" {
-  #   source = "./automate2/config.sh"
-  #   destination = "~/config.sh"
-  #   connection {
-  #     type     = "ssh"
-  #     user     = var.admin_username
-  #     password = var.admin_password
-  #     host     = azurerm_public_ip.publicip.ip_address
-  #   }
-  # }
   provisioner "file" {
     source = "./automate2/setup.sh"
     destination = "~/setup.sh"
