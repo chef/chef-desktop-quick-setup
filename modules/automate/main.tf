@@ -12,59 +12,12 @@ provider "azurerm" {
   features {}
 }
 
-# Desktop Flow resource group
-resource "azurerm_resource_group" "rg" {
-  name = "DesktopTerraformResourceGroup"
-  location = var.resource_location
-  tags = {
-    Environment = "Chef Desktop flow"
-    Team = "Chef Desktop"
-  }
-}
-
-# DesktopTerraformResourceGroup Public IP
-resource "azurerm_public_ip" "publicip" {
-  name = "DesktopTerraformPublicIP"
-  location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method = "Static"
-}
-
-# DesktopTerraformResourceGroup Virtual network
-resource "azurerm_virtual_network" "vnet" {
-  name = "DesktopTerraformVirtualNetwork"
-  address_space = ["10.0.0.0/16"]
-  location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-}
-
-# DesktopTerraformResourceGroup Subnet
-resource "azurerm_subnet" "subnet" {
-  name = "DesktopTerraformSubnet"
-  resource_group_name = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes = ["10.0.1.0/24"]
-}
-
-# DesktopTerraformResourceGroup Network Interface
-resource "azurerm_network_interface" "nic" {
-  name = "DesktopNetworkInterface"
-  location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  ip_configuration {
-    name = "DesktopNetworkInterfaceConfig"
-    subnet_id = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "dynamic"
-    public_ip_address_id = azurerm_public_ip.publicip.id
-  }
-}
-
 # Automate Server
 resource "azurerm_linux_virtual_machine" "automate2" {
   name = "Automate2Server"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
   location = var.resource_location
-  network_interface_ids = [azurerm_network_interface.nic.id]
+  network_interface_ids = [var.network_interface_id]
   # 4vCPUs, 16GB RAM - Based on minimum requirements for Automate server.
   # For more details, visit https://docs.chef.io/automate/system_requirements/
   size = "Standard_D4s_v3"
@@ -92,13 +45,13 @@ resource "azurerm_linux_virtual_machine" "automate2" {
     Team = "Chef Desktop"
   }
   provisioner "file" {
-    source = "./setup.sh"
+    source = "./modules/automate/setup.sh"
     destination = "~/setup.sh"
     connection {
       type     = "ssh"
       user     = var.admin_username
       password = var.admin_password
-      host     = azurerm_public_ip.publicip.ip_address
+      host     = var.public_ip_address
     }
   }
   provisioner "remote-exec" {
@@ -107,31 +60,13 @@ resource "azurerm_linux_virtual_machine" "automate2" {
       type     = "ssh"
       user     = var.admin_username
       password = var.admin_password
-      host     = azurerm_public_ip.publicip.ip_address
+      host     = var.public_ip_address
     }
   }
 }
 
-# Network security group and rules
-resource "azurerm_network_security_group" "nsg" {
-  name = "DesktopTerraformNetworkSecurityGroup"
-  location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  security_rule {
-    name = "SSH"
-    priority = 1001
-    direction = "Inbound"
-    access = "Allow"
-    protocol = "Tcp"
-    source_port_range = "*"
-    destination_port_range = "22"
-    source_address_prefix = "*"
-    destination_address_prefix = "*"
-  }
-}
-
 data "azurerm_public_ip" "ip" {
-  name                = azurerm_public_ip.publicip.name
+  name                = var.public_ip_name
   resource_group_name = azurerm_linux_virtual_machine.automate2.resource_group_name
   depends_on          = [azurerm_linux_virtual_machine.automate2]
 }
