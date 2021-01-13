@@ -15,22 +15,17 @@ variable "resource_location" {
   default = "southindia"
 }
 
-variable "network_interface_id" {
-  type = string
-  description = "Network interface ID"
-}
-
 variable "resource_group_name" {
   type = string
   description = "Resource group name"
 }
 
-variable "public_ip_name" {
+variable "subnet_id" {
   type = string
-  description = "Name of the public IP address"
+  description = "Subnet ID"
 }
 
-variable "public_ip_address" {
+variable "automate_dns_name_label" {
   type = string
-  description = "Allocated IP address"
+  description = "Automate DNS name label"
 }

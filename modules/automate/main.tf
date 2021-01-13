@@ -12,12 +12,34 @@ provider "azurerm" {
   features {}
 }
 
+# Automate server Public IP
+resource "azurerm_public_ip" "automate_public_ip" {
+  name = "DesktopTerraformPublicIPAutomate"
+  location = var.resource_location
+  resource_group_name = var.resource_group_name
+  allocation_method = "Static"
+  domain_name_label = var.automate_dns_name_label
+}
+
+# Automate server Network Interface
+resource "azurerm_network_interface" "automate_nic" {
+  name = "DesktopNetworkInterfaceAutomate"
+  location = var.resource_location
+  resource_group_name = var.resource_group_name
+  ip_configuration {
+    name = "DesktopNetworkInterfaceConfig"
+    subnet_id = var.subnet_id
+    private_ip_address_allocation = "dynamic"
+    public_ip_address_id = azurerm_public_ip.automate_public_ip.id
+  }
+}
+
 # Automate Server
 resource "azurerm_linux_virtual_machine" "automate2" {
   name = "Automate2Server"
   resource_group_name = var.resource_group_name
   location = var.resource_location
-  network_interface_ids = [var.network_interface_id]
+  network_interface_ids = [azurerm_network_interface.automate_nic.id]
   # 4vCPUs, 16GB RAM - Based on minimum requirements for Automate server.
   # For more details, visit https://docs.chef.io/automate/system_requirements/
   size = "Standard_D4s_v3"
@@ -45,13 +67,23 @@ resource "azurerm_linux_virtual_machine" "automate2" {
     Team = "Chef Desktop"
   }
   provisioner "file" {
+    content = "${templatefile("${path.module}/config.toml.tpl", { automate_fqdn = azurerm_public_ip.automate_public_ip.fqdn })}"
+    destination = "~/config.toml"
+    connection {
+      type     = "ssh"
+      user     = var.admin_username
+      password = var.admin_password
+      host     = azurerm_public_ip.automate_public_ip.ip_address
+    }
+  }
+  provisioner "file" {
     source = "./modules/automate/setup.sh"
     destination = "~/setup.sh"
     connection {
       type     = "ssh"
       user     = var.admin_username
       password = var.admin_password
-      host     = var.public_ip_address
+      host     = azurerm_public_ip.automate_public_ip.ip_address
     }
   }
   provisioner "remote-exec" {
@@ -60,13 +92,13 @@ resource "azurerm_linux_virtual_machine" "automate2" {
       type     = "ssh"
       user     = var.admin_username
       password = var.admin_password
-      host     = var.public_ip_address
+      host     = azurerm_public_ip.automate_public_ip.ip_address
     }
   }
 }
 
 data "azurerm_public_ip" "ip" {
-  name                = var.public_ip_name
+  name                = azurerm_public_ip.automate_public_ip.name
   resource_group_name = azurerm_linux_virtual_machine.automate2.resource_group_name
   depends_on          = [azurerm_linux_virtual_machine.automate2]
 }
