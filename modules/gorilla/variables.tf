@@ -15,7 +15,12 @@ variable "resource_location" {
   default = "southindia"
 }
 
-variable "automate_dns_name_label" {
+variable "resource_group_name" {
   type = string
-  description = "Automate DNS name label"
+  description = "Resource group name"
+}
+
+variable "subnet_id" {
+  type = string
+  description = "Subnet ID"
 }

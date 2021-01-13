@@ -19,14 +19,22 @@ module "automate" {
   admin_password = var.admin_password
   resource_location = var.resource_location
   resource_group_name = azurerm_resource_group.rg.name
-  network_interface_id = azurerm_network_interface.nic.id
-  public_ip_name = azurerm_public_ip.publicip.name
-  public_ip_address = azurerm_public_ip.publicip.ip_address
+  subnet_id = azurerm_subnet.subnet.id
+  automate_dns_name_label = var.automate_dns_name_label
 }
 
 module "munki" {
   source = "./modules/munki"
   resource_location = var.resource_location
+}
+
+module "gorilla" {
+  source = "./modules/gorilla"
+  admin_username = var.admin_username
+  admin_password = var.admin_password
+  resource_location = var.resource_location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id = azurerm_subnet.subnet.id
 }
 
 # Desktop Flow resource group
@@ -37,14 +45,6 @@ resource "azurerm_resource_group" "rg" {
     Environment = "Chef Desktop flow"
     Team = "Chef Desktop"
   }
-}
-
-# DesktopTerraformResourceGroup Public IP
-resource "azurerm_public_ip" "publicip" {
-  name = "DesktopTerraformPublicIP"
-  location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method = "Static"
 }
 
 # DesktopTerraformResourceGroup Virtual network
@@ -61,19 +61,6 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes = ["10.0.1.0/24"]
-}
-
-# DesktopTerraformResourceGroup Network Interface
-resource "azurerm_network_interface" "nic" {
-  name = "DesktopNetworkInterface"
-  location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  ip_configuration {
-    name = "DesktopNetworkInterfaceConfig"
-    subnet_id = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "dynamic"
-    public_ip_address_id = azurerm_public_ip.publicip.id
-  }
 }
 
 # Network security group and rules
