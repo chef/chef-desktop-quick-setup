@@ -21,6 +21,7 @@ module "automate" {
   resource_group_name = azurerm_resource_group.rg.name
   subnet_id = azurerm_subnet.subnet.id
   automate_dns_name_label = var.automate_dns_name_label
+  automate_credentials = var.automate_credentials
 }
 
 module "munki" {

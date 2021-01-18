@@ -29,3 +29,17 @@ variable "automate_dns_name_label" {
   type = string
   description = "Automate DNS name label"
 }
+
+variable "automate_credentials" {
+  type = object({
+    user_name          = string
+    user_display_name  = string
+    user_email         = string
+    user_password      = string
+    org_name           = string
+    org_display_name   = string
+    validator_path     = string
+  })
+  sensitive = true
+  description = "Automate server credentials configuration"
+}

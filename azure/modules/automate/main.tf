@@ -67,7 +67,7 @@ resource "azurerm_linux_virtual_machine" "automate2" {
     Team = "Chef Desktop"
   }
   provisioner "file" {
-    content = "${templatefile("${path.module}/config.toml.tpl", { automate_fqdn = azurerm_public_ip.automate_public_ip.fqdn })}"
+    content = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = azurerm_public_ip.automate_public_ip.fqdn })
     destination = "~/config.toml"
     connection {
       type     = "ssh"
@@ -77,8 +77,16 @@ resource "azurerm_linux_virtual_machine" "automate2" {
     }
   }
   provisioner "file" {
-    source = "./modules/automate/setup.sh"
-    destination = "~/setup.sh"
+    content = templatefile("${path.root}/../templates/automate.setup.sh.tpl", {
+      user_name          = var.automate_credentials.user_name
+      user_display_name  = var.automate_credentials.user_display_name
+      user_email         = var.automate_credentials.user_email
+      user_password      = var.automate_credentials.user_password
+      org_name           = var.automate_credentials.org_name
+      org_display_name   = var.automate_credentials.org_display_name
+      validator_path     = var.automate_credentials.validator_path
+    })
+    destination = "~/automate.setup.sh"
     connection {
       type     = "ssh"
       user     = var.admin_username
@@ -87,7 +95,7 @@ resource "azurerm_linux_virtual_machine" "automate2" {
     }
   }
   provisioner "remote-exec" {
-    inline = ["/bin/sh ~/setup.sh"]
+    inline = ["/bin/bash ~/automate.setup.sh"]
     connection {
       type     = "ssh"
       user     = var.admin_username

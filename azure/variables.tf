@@ -24,3 +24,17 @@ variable "azure_storage_account" {
   type = string
   description = "Azure storage account to create"
 }
+
+variable "automate_credentials" {
+  type = object({
+    user_name          = string
+    user_display_name  = string
+    user_email         = string
+    user_password      = string
+    org_name           = string
+    org_display_name   = string
+    validator_path     = string
+  })
+  sensitive = true
+  description = "Automate server credentials configuration"
+}
