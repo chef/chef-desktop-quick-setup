@@ -3,3 +3,8 @@ variable "resource_location" {
   description = "Region/Location for the resources"
   default = "southindia"
 }
+
+variable "storage_account_name" {
+  type = string
+  description = "Storage account name"
+}

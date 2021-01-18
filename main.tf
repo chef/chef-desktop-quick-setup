@@ -26,6 +26,7 @@ module "automate" {
 module "munki" {
   source = "./modules/munki"
   resource_location = var.resource_location
+  storage_account_name  = azurerm_storage_account.desktop_storage_account.name
 }
 
 module "gorilla" {
@@ -35,6 +36,7 @@ module "gorilla" {
   resource_location = var.resource_location
   resource_group_name = azurerm_resource_group.rg.name
   subnet_id = azurerm_subnet.subnet.id
+  storage_account_name  = azurerm_storage_account.desktop_storage_account.name
 }
 
 # Desktop Flow resource group
@@ -79,4 +81,13 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix = "*"
     destination_address_prefix = "*"
   }
+}
+
+# Create azure storage account.
+resource "azurerm_storage_account" "desktop_storage_account" {
+  name                     = var.azure_storage_account
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
 }

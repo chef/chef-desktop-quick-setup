@@ -1,0 +1,16 @@
+---
+name: example
+managed_installs:
+  - Chocolatey
+  - ChocolateyCoreExtension
+  - VSCode
+  - Firefox
+
+managed_uninstalls:
+
+managed_updates:
+
+included_manifests:
+
+catalogs:
+ - example

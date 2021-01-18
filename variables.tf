@@ -19,3 +19,8 @@ variable "automate_dns_name_label" {
   type = string
   description = "Automate DNS name label"
 }
+
+variable "azure_storage_account" {
+  type = string
+  description = "Azure storage account to create"
+}

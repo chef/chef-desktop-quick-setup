@@ -24,3 +24,8 @@ variable "subnet_id" {
   type = string
   description = "Subnet ID"
 }
+
+variable "storage_account_name" {
+  type = string
+  description = "Storage account name"
+}

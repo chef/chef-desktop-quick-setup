@@ -1,0 +1,66 @@
+---
+Chocolatey:
+  display_name: Chocolatey
+  check:
+    file:
+      - path: C:\ProgramData\chocolatey\choco.exe
+  installer:
+    hash: 0C1282378641E03564844D04881209AA946D7D2475049BE32B3151BD68F2758F
+    location: packages/chocolatey/chocolatey_installer-1.0.ps1
+    type: ps1
+  version: 1.0
+
+ChocolateyCoreExtension:
+  dependencies:
+    - Chocolatey
+  display_name: Chocolatey Core Extension
+  check:
+    file:
+      - path: C:\ProgramData\chocolatey\extensions\chocolatey-core\chocolatey-core.psm1
+        hash: 376E6EDA567DDDD6AA70CFC9EC5380CE0EB1383BE83C2FBDC87F6FC79252E4E8
+  installer:
+    hash: 5ECEF3B776508CEBC4B52E9AC7F04D213C2045A6765F12E17545A5FBE2F41928
+    location: packages/chocolatey/extensions/core/chocolatey-core.extension.1.3.3.nupkg
+    type: nupkg
+  version: 1.3.5.1
+
+ChefClient:
+  display_name: Chef Client
+  check:
+    script: |
+      $latest = "15.8.23"
+      $findchefclient = Get-Command 'chef-client'
+      $chefPath = $findchefclient.source
+      If (![System.IO.File]::Exists($chefPath)) {
+        exit 0
+      }
+      $Expression = $findchefclient.Source + " --version"
+      $current = Invoke-Expression $Expression
+      $current = $current.Split(" ")[3]
+      $upToDate = [System.Version]$current -ge [System.Version]$latest
+      If ($upToDate) {
+        exit 1
+      } Else {
+        exit 0
+      }
+  installer:
+    location: packages/chef-client/chef-client-15.8.23-1-x64.msi
+    hash: f5ef8c31898592824751ec2252fe317c0f667db25ac40452710c8ccf35a1b28d
+    type: msi
+  uninstaller:
+    location: packages/chef-client/chef-client-15.8.23-1-x64.msi
+    hash: f5ef8c31898592824751ec2252fe317c0f667db25ac40452710c8ccf35a1b28d
+    type: msi
+  version: 15.8.23
+
+GoogleChrome:
+  display_name: GoogleChrome
+  check:
+    registry:
+      name: GoogleChrome
+      version: 80.0.3987.122
+  installer:
+    hash: 6C9C2647D0100176A4E5553958F11CECD854187EB6F9CB1EB807B6D996C4F3DF
+    location: packages/google-chrome/GoogleChromeStandaloneEnterprise64.msi
+    type: nupkg
+  version: 80.0.3987.122
