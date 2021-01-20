@@ -30,14 +30,14 @@ setup_automate_server() {
   init_system
   start_automate2_with_desktop
 
-  local first_name, last_name
+  local first_name last_name
   read first_name last_name <<< $(echo ${user_display_name} | awk '{print $1; print $NF}')
 
   # Create user and organisation in the automate server
   echo "Creating user with name ${user_name}"
-  sudo chef-server-ctl user-create ${user_name} $first_name $last_name ${user_email} '${user_password}' --filename "${user_name}.pem"
+  sudo chef-server-ctl user-create ${user_name} $first_name $last_name ${user_email} "${user_password}" --filename "${user_name}.pem"
   echo "Creating organisation with name ${org_name}, full name - ${org_display_name}"
-  sudo chef-server-ctl org-create ${org_name} '${org_display_name}' --association_user ${user_name} --filename ${validator_path}
+  sudo chef-server-ctl org-create ${org_name} "${org_display_name}" --association_user ${user_name} --filename ${validator_path}
   echo "Credentials saved to ${validator_path}"
 
   # Patch automate server and update the fqdn to be the same as public url of the server.
