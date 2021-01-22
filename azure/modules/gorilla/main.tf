@@ -20,17 +20,11 @@ resource "azurerm_storage_container" "gorilla_container" {
   container_access_type = "private"
 }
 
-resource "azurerm_storage_blob" "upload_catalog" {
-  name                   = "catalogs/catalog.yaml"
+resource "azurerm_storage_blob" "upload_files" {
+  for_each = fileset("${path.root}/../files/gorilla-repository", "**/*")
+  name                   = each.value
   storage_account_name   = var.storage_account_name
   storage_container_name = azurerm_storage_container.gorilla_container.name
   type                   = "Block"
-  source                 = "${path.root}/../files/gorilla-repository/catalogs/catalog.yaml"
-}
-resource "azurerm_storage_blob" "upload_manifest" {
-  name                   = "manifests/manifest.yaml"
-  storage_account_name   = var.storage_account_name
-  storage_container_name = azurerm_storage_container.gorilla_container.name
-  type                   = "Block"
-  source                 = "${path.root}/../files/gorilla-repository/manifests/manifest.yaml"
+  source = "${path.root}/../files/gorilla-repository/${each.value}"
 }
