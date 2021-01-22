@@ -3,7 +3,7 @@ terraform {
   required_version = ">= 0.14.3"
   required_providers {
     azurerm = {
-      source = "hashicorp/azurerm"
+      source  = "hashicorp/azurerm"
       version = ">= 2.41.0"
     }
   }
@@ -14,72 +14,72 @@ provider "azurerm" {
 }
 
 module "automate" {
-  source = "./modules/automate"
-  admin_username = var.admin_username
-  admin_password = var.admin_password
-  resource_location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  subnet_id = azurerm_subnet.subnet.id
+  source                  = "./modules/automate"
+  admin_username          = var.admin_username
+  admin_password          = var.admin_password
+  resource_location       = var.resource_location
+  resource_group_name     = azurerm_resource_group.rg.name
+  subnet_id               = azurerm_subnet.subnet.id
   automate_dns_name_label = var.automate_dns_name_label
-  automate_credentials = var.automate_credentials
+  automate_credentials    = var.automate_credentials
 }
 
 module "munki" {
-  source = "./modules/munki"
-  resource_location = var.resource_location
-  storage_account_name  = azurerm_storage_account.desktop_storage_account.name
+  source               = "./modules/munki"
+  resource_location    = var.resource_location
+  storage_account_name = azurerm_storage_account.desktop_storage_account.name
 }
 
 module "gorilla" {
-  source = "./modules/gorilla"
-  admin_username = var.admin_username
-  admin_password = var.admin_password
-  resource_location = var.resource_location
-  resource_group_name = azurerm_resource_group.rg.name
-  subnet_id = azurerm_subnet.subnet.id
-  storage_account_name  = azurerm_storage_account.desktop_storage_account.name
+  source               = "./modules/gorilla"
+  admin_username       = var.admin_username
+  admin_password       = var.admin_password
+  resource_location    = var.resource_location
+  resource_group_name  = azurerm_resource_group.rg.name
+  subnet_id            = azurerm_subnet.subnet.id
+  storage_account_name = azurerm_storage_account.desktop_storage_account.name
 }
 
 # Desktop Flow resource group
 resource "azurerm_resource_group" "rg" {
-  name = "DesktopTerraformResourceGroup"
+  name     = "DesktopTerraformResourceGroup"
   location = var.resource_location
   tags = {
     Environment = "Chef Desktop flow"
-    Team = "Chef Desktop"
+    Team        = "Chef Desktop"
   }
 }
 
 # DesktopTerraformResourceGroup Virtual network
 resource "azurerm_virtual_network" "vnet" {
-  name = "DesktopTerraformVirtualNetwork"
-  address_space = ["10.0.0.0/16"]
-  location = var.resource_location
+  name                = "DesktopTerraformVirtualNetwork"
+  address_space       = ["10.0.0.0/16"]
+  location            = var.resource_location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 # DesktopTerraformResourceGroup Subnet
 resource "azurerm_subnet" "subnet" {
-  name = "DesktopTerraformSubnet"
-  resource_group_name = azurerm_resource_group.rg.name
+  name                 = "DesktopTerraformSubnet"
+  resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes = ["10.0.1.0/24"]
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
 # Network security group and rules
 resource "azurerm_network_security_group" "nsg" {
-  name = "DesktopTerraformNetworkSecurityGroup"
-  location = var.resource_location
+  name                = "DesktopTerraformNetworkSecurityGroup"
+  location            = var.resource_location
   resource_group_name = azurerm_resource_group.rg.name
   security_rule {
-    name = "SSH"
-    priority = 1001
-    direction = "Inbound"
-    access = "Allow"
-    protocol = "Tcp"
-    source_port_range = "*"
-    destination_port_range = "22"
-    source_address_prefix = "*"
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 }

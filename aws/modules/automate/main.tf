@@ -63,9 +63,9 @@ resource "aws_instance" "automate" {
   }
 
   connection {
-    type  = "ssh"
-    user  = var.admin_username
-    host  = self.public_ip
+    type = "ssh"
+    user = var.admin_username
+    host = self.public_ip
   }
 
   provisioner "file" {

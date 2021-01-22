@@ -1,31 +1,31 @@
 # Admin username and password for automate server machine
 variable "admin_username" {
-  type = string
+  type        = string
   description = "Admin username for automate server"
 }
 variable "admin_password" {
-  type = string
+  type        = string
   description = "Admin password for automate server"
-  sensitive = true
+  sensitive   = true
 }
 # Other useful configuration options
 variable "resource_location" {
-  type = string
+  type        = string
   description = "Region/Location for the resources"
-  default = "southindia"
+  default     = "southindia"
 }
 
 variable "resource_group_name" {
-  type = string
+  type        = string
   description = "Resource group name"
 }
 
 variable "subnet_id" {
-  type = string
+  type        = string
   description = "Subnet ID"
 }
 
 variable "storage_account_name" {
-  type = string
+  type        = string
   description = "Storage account name"
 }

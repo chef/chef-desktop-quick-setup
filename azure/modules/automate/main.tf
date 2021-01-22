@@ -37,13 +37,13 @@ resource "azurerm_network_interface" "automate_nic" {
 
 # Automate Server
 resource "azurerm_linux_virtual_machine" "automate" {
-  name                  = "Automate2Server"
-  resource_group_name   = var.resource_group_name
-  location              = var.resource_location
+  name                = "Automate2Server"
+  resource_group_name = var.resource_group_name
+  location            = var.resource_location
   # 4vCPUs, 16GB RAM - Based on minimum requirements for Automate server.
   # For more details, visit https://docs.chef.io/automate/system_requirements/
-  size                            = "Standard_D4s_v3"
-  computer_name                   = "AutomateServer"
+  size          = "Standard_D4s_v3"
+  computer_name = "AutomateServer"
 
   admin_username                  = var.admin_username
   admin_password                  = var.admin_password

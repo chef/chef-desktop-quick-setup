@@ -13,4 +13,4 @@ managed_updates:
 included_manifests:
 
 catalogs:
- - example
+  - example

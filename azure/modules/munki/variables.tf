@@ -1,10 +1,10 @@
 variable "resource_location" {
-  type = string
+  type        = string
   description = "Region/Location for the resources"
-  default = "southindia"
+  default     = "southindia"
 }
 
 variable "storage_account_name" {
-  type = string
+  type        = string
   description = "Storage account name"
 }

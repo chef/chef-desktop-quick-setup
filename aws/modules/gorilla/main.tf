@@ -13,14 +13,12 @@ provider "aws" {
 
 resource "aws_s3_bucket" "gorilla_repository" {
   bucket = "gorilla-repository"
-  # Switch acl to authenticated-read?
-  acl           = "private"
+  acl    = "private" # Switch acl to authenticated-read?
 }
 
 resource "aws_s3_bucket_object" "test" {
   for_each = fileset("${path.root}/../files/gorilla-repository", "**/*")
-
-  bucket = aws_s3_bucket.gorilla_repository.bucket
-  key    = each.value
-  source = "${path.root}/../files/gorilla-repository/${each.value}"
+  bucket   = aws_s3_bucket.gorilla_repository.bucket
+  key      = each.value
+  source   = "${path.root}/../files/gorilla-repository/${each.value}"
 }
