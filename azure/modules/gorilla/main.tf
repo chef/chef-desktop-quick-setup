@@ -21,16 +21,16 @@ resource "azurerm_storage_container" "gorilla_container" {
 }
 
 resource "azurerm_storage_blob" "upload_catalog" {
-  name                   = "catalogs/example.yaml"
+  name                   = "catalogs/catalog.yaml"
   storage_account_name   = var.storage_account_name
   storage_container_name = azurerm_storage_container.gorilla_container.name
   type                   = "Block"
-  source                 = "${path.module}/catalog.yaml"
+  source                 = "${path.root}/../files/gorilla-repository/catalogs/catalog.yaml"
 }
 resource "azurerm_storage_blob" "upload_manifest" {
-  name                   = "manifests/example.yaml"
+  name                   = "manifests/manifest.yaml"
   storage_account_name   = var.storage_account_name
   storage_container_name = azurerm_storage_container.gorilla_container.name
   type                   = "Block"
-  source                 = "${path.module}/manifest.yaml"
+  source                 = "${path.root}/../files/gorilla-repository/manifests/manifest.yaml"
 }
