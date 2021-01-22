@@ -31,6 +31,7 @@ module "munki" {
 
 module "gorilla" {
   source = "./modules/gorilla"
+  resource_location    = var.resource_location
 }
 
 resource "aws_vpc" "vpc" {
