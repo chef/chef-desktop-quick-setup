@@ -79,3 +79,10 @@ override.tf.json
 
 terraform.tfvars
 updatedplan
+
+
+# Ignore windows installers
+*.ps1
+*.exe
+*.nupkg
+*.msi
