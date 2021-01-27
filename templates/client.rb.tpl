@@ -1,0 +1,11 @@
+log_level              :info
+log_location           STDOUT
+ssl_verify_mode        :verify_none
+local_key_generation   true
+rest_timeout           30
+http_retry_count       3
+chef_license           'accept'
+node_name              "${node_name}"
+client_key             "#{current_dir}/${user_name}.pem"
+chef_server_url        "${chef_server_url}"
+cookbook_path          ["#{current_dir}/../cookbooks"]

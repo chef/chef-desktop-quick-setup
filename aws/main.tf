@@ -27,11 +27,20 @@ module "automate" {
 
 module "munki" {
   source = "./modules/munki"
+  resource_location    = var.resource_location
+  subnet_id            = aws_subnet.subnet.id
+  security_group_id    = aws_security_group.allow_ssh.id
+  key_name             = aws_key_pair.awskp.key_name
 }
 
 module "gorilla" {
   source            = "./modules/gorilla"
   resource_location = var.resource_location
+}
+
+module "nodes" {
+  source = "./modules/nodes"
+  node_count = 2
 }
 
 resource "aws_vpc" "vpc" {
