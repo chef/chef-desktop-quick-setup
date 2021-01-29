@@ -44,7 +44,7 @@ variable "security_group_id" {
 variable "private_key_path" {
   type = string
   description = "Private key path"
-  default = "/../keys/aws_terraform"
+  default = "../keys/aws_terraform"
 }
 
 variable "key_name" {

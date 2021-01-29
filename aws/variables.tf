@@ -41,12 +41,12 @@ variable "automate_credentials" {
 variable "public_key_path" {
   type = string
   description = "Public key path (relative to terraform's path.root value)"
-  default = "/../keys/aws_terraform.pub"
+  default = "../keys/aws_terraform.pub"
 }
 
 # Path to AWS private key.
 variable "private_key_path" {
   type = string
   description = "Private key path (relative to terraform's path.root value)"
-  default = "/../keys/aws_terraform"
+  default = "../keys/aws_terraform"
 }

@@ -53,7 +53,7 @@ resource "aws_instance" "automate" {
     type = "ssh"
     user = var.admin_username
     host = self.public_ip
-    private_key = file(path.root + var.private_key_path)
+    private_key = file("${path.root}/${var.private_key_path}")
   }
 
   provisioner "file" {

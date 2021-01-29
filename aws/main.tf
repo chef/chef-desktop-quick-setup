@@ -137,5 +137,5 @@ resource "aws_security_group" "allow_ssh" {
 
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
-  public_key = file(path.root + var.public_key_path)
+  public_key = file("./${var.public_key_path}")
 }
