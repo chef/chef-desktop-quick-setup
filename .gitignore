@@ -86,3 +86,6 @@ updatedplan
 *.exe
 *.nupkg
 *.msi
+
+
+keys/**

@@ -9,40 +9,55 @@ terraform {
   }
 }
 
-# Configure the AWS Provider
+# Configure the AWS Provider.
 provider "aws" {
   region = var.resource_location
 }
 
+# Module for creating automate 2 server.
 module "automate" {
-  source               = "./modules/automate"
-  admin_username       = var.admin_username
-  private_key_path     = var.private_key_path
-  resource_location    = var.resource_location
-  subnet_id            = aws_subnet.subnet.id
-  automate_credentials = var.automate_credentials
-  security_group_id    = aws_security_group.allow_ssh.id
-  key_name             = aws_key_pair.awskp.key_name
+  source                  = "./modules/automate"
+  admin_username          = var.admin_username
+  private_key_path        = var.private_key_path
+  resource_location       = var.resource_location
+  subnet_id               = aws_subnet.subnet.id
+  automate_credentials    = var.automate_credentials
+  security_group_id       = aws_security_group.allow_ssh.id
+  key_name                = aws_key_pair.awskp.key_name
+  automate_dns_name_label = var.automate_dns_name_label
+  automate_depends_on     = [
+    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
+    aws_route_table_association.subnet_association
+  ]
 }
 
+# Module for creating the munki repo and pushing to s3 bucket.
 module "munki" {
-  source = "./modules/munki"
-  resource_location    = var.resource_location
-  subnet_id            = aws_subnet.subnet.id
-  security_group_id    = aws_security_group.allow_ssh.id
-  key_name             = aws_key_pair.awskp.key_name
+  source            = "./modules/munki"
+  resource_location = var.resource_location
+  subnet_id         = aws_subnet.subnet.id
+  security_group_id = aws_security_group.allow_ssh.id
+  key_name          = aws_key_pair.awskp.key_name
 }
 
+# Module for creating the gorilla repo and pushing to s3 bucket.
 module "gorilla" {
   source            = "./modules/gorilla"
   resource_location = var.resource_location
 }
 
+# Module for creating virtual nodes.
 module "nodes" {
-  source = "./modules/nodes"
-  node_count = 2
+  source            = "./modules/nodes"
+  node_count        = 2
+  resource_location = var.resource_location
+  subnet_id         = aws_subnet.subnet.id
+  security_group_id = aws_security_group.allow_ssh.id
+  key_name          = aws_key_pair.awskp.key_name
+  # chef_server_url   = module.automate.automate_server_url
 }
 
+# Create a private cloud.
 resource "aws_vpc" "vpc" {
   cidr_block           = "172.16.0.0/16"
   enable_dns_hostnames = true
@@ -54,6 +69,7 @@ resource "aws_vpc" "vpc" {
   }
 }
 
+# Create an internet gateway.
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
   tags = {
@@ -62,10 +78,13 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+# Create a public subnet.
 resource "aws_subnet" "subnet" {
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = "172.16.10.0/24"
-  availability_zone = var.availability_zone
+  vpc_id     = aws_vpc.vpc.id
+  cidr_block = "172.16.0.0/24"
+  # cidr_block        = cidrsubnet(aws_vpc.vpc.cidr_block, 3, 1)
+  availability_zone       = var.availability_zone
+  map_public_ip_on_launch = true
 
   tags = {
     Environment = "Chef Desktop flow"
@@ -73,6 +92,7 @@ resource "aws_subnet" "subnet" {
   }
 }
 
+# Create route table and attach it to the internet gateway.
 resource "aws_route_table" "rt" {
   vpc_id = aws_vpc.vpc.id
   route {
@@ -84,15 +104,20 @@ resource "aws_route_table" "rt" {
     Team        = "Chef Desktop"
   }
 }
-resource "aws_route_table_association" "subnet-association" {
+
+# Associate route table with subnet.
+resource "aws_route_table_association" "subnet_association" {
   subnet_id      = aws_subnet.subnet.id
   route_table_id = aws_route_table.rt.id
 }
 
+# Security group
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH"
   vpc_id      = aws_vpc.vpc.id
+
+  # Allow anyone to connect to port 22
   ingress {
     description = "SSH"
     from_port   = 22
@@ -100,22 +125,8 @@ resource "aws_security_group" "allow_ssh" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  # ingress {
-  #   description = "HTTPS"
-  #   from_port   = 443
-  #   to_port     = 443
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
 
-  # ingress {
-  #   description = "HTTP"
-  #   from_port   = 80
-  #   to_port     = 80
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-
+  # Re create the default allow all egress rule.
   egress {
     from_port   = 0
     to_port     = 0
@@ -126,5 +137,5 @@ resource "aws_security_group" "allow_ssh" {
 
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
-  public_key = var.public_key
+  public_key = file(path.root + var.public_key_path)
 }

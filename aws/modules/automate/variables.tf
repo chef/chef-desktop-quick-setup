@@ -15,6 +15,12 @@ variable "subnet_id" {
   description = "Subnet ID"
 }
 
+
+variable "automate_dns_name_label" {
+  type        = string
+  description = "Automate DNS name label"
+}
+
 variable "automate_credentials" {
   type = object({
     user_name         = string
@@ -34,12 +40,20 @@ variable "security_group_id" {
   description = "Security group ID"
 }
 
+# Path to AWS private key.
 variable "private_key_path" {
-  type        = string
-  description = "Path to AWS private key pair"
+  type = string
+  description = "Private key path"
+  default = "/../keys/aws_terraform"
 }
 
 variable "key_name" {
   type        = string
   description = "Key name for AWS"
+}
+
+variable "automate_depends_on" {
+  type = any
+  description = "Resource dependencies for automate server."
+  default = []
 }

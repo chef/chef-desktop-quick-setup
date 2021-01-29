@@ -11,15 +11,6 @@ provider "aws" {
   region = var.resource_location
 }
 
-
-resource "aws_network_interface" "nic" {
-  subnet_id   = var.subnet_id
-  private_ips = ["172.16.10.100"]
-
-  tags = {
-    Name = "primary_network_interface"
-  }
-}
 # data "aws_ami" "amazon_linux_2" {
 #   executable_users = ["self"]
 #   most_recent      = true
@@ -51,11 +42,7 @@ resource "aws_instance" "automate" {
   vpc_security_group_ids      = [var.security_group_id]
   subnet_id                   = var.subnet_id
   key_name                    = var.key_name
-
-  # network_interface {
-  #   network_interface_id = aws_network_interface.nic.id
-  #   device_index = 0
-  # }
+  depends_on                  = [var.automate_depends_on]
 
   tags = {
     Environment = "Chef Desktop flow"
@@ -66,10 +53,11 @@ resource "aws_instance" "automate" {
     type = "ssh"
     user = var.admin_username
     host = self.public_ip
+    private_key = file(path.root + var.private_key_path)
   }
 
   provisioner "file" {
-    content     = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = self.public_dns })
+    content     = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = self.public_ip })
     destination = "~/config.toml"
   }
 
@@ -94,4 +82,8 @@ resource "aws_instance" "automate" {
 resource "aws_eip" "eip" {
   instance = aws_instance.automate.id
   vpc      = true
+}
+
+output "automate_server_url" {
+  value = aws_instance.automate.public_ip
 }
