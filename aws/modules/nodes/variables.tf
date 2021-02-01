@@ -10,9 +10,14 @@ variable "subnet_id" {
   description = "Subnet ID"
 }
 
-variable "security_group_id" {
+variable "allow_ssh" {
   type        = string
-  description = "Security group ID"
+  description = "Security group ID for allow_ssh rule"
+}
+
+variable "allow_rdp" {
+  type        = string
+  description = "Security group ID for allow_win_rdp_connection rule"
 }
 
 variable "key_name" {
@@ -26,5 +31,16 @@ variable "node_count" {
 }
 
 variable "windows_node_instance_type" {
-  default = "t3.large"
+  default = "t2.micro"
+}
+
+variable "chef_server_url" {
+  type = string
+  description = "Public url of the automate server"
+}
+
+variable "node_depends_on" {
+  type = any
+  description = "Resource dependencies for nodes."
+  default = []
 }

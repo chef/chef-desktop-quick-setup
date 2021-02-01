@@ -25,7 +25,7 @@ module "automate" {
   security_group_id       = aws_security_group.allow_ssh.id
   key_name                = aws_key_pair.awskp.key_name
   automate_dns_name_label = var.automate_dns_name_label
-  automate_depends_on     = [
+  automate_depends_on = [
     # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
     aws_route_table_association.subnet_association
   ]
@@ -52,9 +52,14 @@ module "nodes" {
   node_count        = 2
   resource_location = var.resource_location
   subnet_id         = aws_subnet.subnet.id
-  security_group_id = aws_security_group.allow_ssh.id
+  allow_ssh         = aws_security_group.allow_ssh.id
+  allow_rdp         = aws_security_group.allow_win_rdp_connection.id
   key_name          = aws_key_pair.awskp.key_name
-  # chef_server_url   = module.automate.automate_server_url
+  chef_server_url   = module.automate.automate_server_url
+  node_depends_on = [
+    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
+    aws_route_table_association.subnet_association
+  ]
 }
 
 # Create a private cloud.
@@ -126,6 +131,27 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Re create the default allow all egress rule.
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "allow_win_rdp_connection" {
+  name        = "allow_win_rdp_connection"
+  description = "Allow RDP clients to connect to windows nodes"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    description = "RDP"
+    from_port   = 3389
+    to_port     = 3389
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   # Re create the default allow all egress rule.
   egress {
     from_port   = 0
