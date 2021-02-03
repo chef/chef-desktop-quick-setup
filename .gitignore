@@ -87,5 +87,5 @@ updatedplan
 *.nupkg
 *.msi
 
-
 keys/**
+!keys/.keep
