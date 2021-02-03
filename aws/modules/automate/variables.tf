@@ -10,6 +10,11 @@ variable "resource_location" {
   default     = "ap-south-1"
 }
 
+variable "ami_id" {
+  type = string
+  description = "AMI ID for automate server"
+}
+
 variable "subnet_id" {
   type        = string
   description = "Subnet ID"

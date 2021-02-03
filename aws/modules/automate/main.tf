@@ -11,30 +11,8 @@ provider "aws" {
   region = var.resource_location
 }
 
-# data "aws_ami" "amazon_linux_2" {
-#   executable_users = ["self"]
-#   most_recent      = true
-#   # name_regex       = "^Amazon Linux 2 AMI (HVM)*"
-#   owners           = ["amazon"]
-
-#   filter {
-#     name   = "name"
-#     values = ["Amazon Linux 2 AMI (HVM)*"]
-#   }
-
-#   filter {
-#     name   = "root-device-type"
-#     values = ["ebs"]
-#   }
-
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-# }
-
 resource "aws_instance" "automate" {
-  ami = "ami-0db0b3ab7df22e366"
+  ami = var.ami_id
   # 4vCPUs, 16GB RAM - Based on minimum requirements for Automate server.
   # For more details, visit https://docs.chef.io/automate/system_requirements/
   instance_type               = "t2.xlarge"
@@ -47,41 +25,7 @@ resource "aws_instance" "automate" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
-  }
-}
-
-resource "null_resource" "automate_server_setup" {
-  triggers = {
-    automate_instance_id = "${aws_instance.automate.id}"
-  }
-
-  connection {
-    type = "ssh"
-    user = var.admin_username
-    host = aws_eip.eip.public_dns
-    private_key = file("${path.root}/${var.private_key_path}")
-  }
-
-  provisioner "file" {
-    content     = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = aws_eip.eip.public_dns })
-    destination = "~/config.toml"
-  }
-
-  provisioner "file" {
-    content = templatefile("${path.root}/../templates/automate.setup.sh.tpl", {
-      user_name         = var.automate_credentials.user_name
-      user_display_name = var.automate_credentials.user_display_name
-      user_email        = var.automate_credentials.user_email
-      user_password     = var.automate_credentials.user_password
-      org_name          = var.automate_credentials.org_name
-      org_display_name  = var.automate_credentials.org_display_name
-      validator_path    = var.automate_credentials.validator_path
-    })
-    destination = "~/automate.setup.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = ["/bin/bash ~/automate.setup.sh"]
+    Name = "cdqs-A2server"
   }
 }
 
