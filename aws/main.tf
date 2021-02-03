@@ -116,7 +116,7 @@ resource "aws_route_table_association" "subnet_association" {
   route_table_id = aws_route_table.rt.id
 }
 
-# Security group
+# Security group for automate server.
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH"
@@ -131,6 +131,14 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # Re create the default allow all egress rule.
   egress {
     from_port   = 0
@@ -140,6 +148,7 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
+# Security group for windows nodes.
 resource "aws_security_group" "allow_win_rdp_connection" {
   name        = "allow_win_rdp_connection"
   description = "Allow RDP clients to connect to windows nodes"

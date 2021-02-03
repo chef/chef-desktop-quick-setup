@@ -48,16 +48,22 @@ resource "aws_instance" "automate" {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
   }
+}
+
+resource "null_resource" "automate_server_setup" {
+  triggers = {
+    automate_instance_id = "${aws_instance.automate.id}"
+  }
 
   connection {
     type = "ssh"
     user = var.admin_username
-    host = self.public_ip
+    host = aws_eip.eip.public_dns
     private_key = file("${path.root}/${var.private_key_path}")
   }
 
   provisioner "file" {
-    content     = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = self.public_ip })
+    content     = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = aws_eip.eip.public_dns })
     destination = "~/config.toml"
   }
 
@@ -85,5 +91,5 @@ resource "aws_eip" "eip" {
 }
 
 output "automate_server_url" {
-  value = aws_instance.automate.public_ip
+  value = aws_eip.eip.public_dns
 }
