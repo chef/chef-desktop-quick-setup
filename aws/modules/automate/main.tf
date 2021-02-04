@@ -33,7 +33,3 @@ resource "aws_eip" "eip" {
   instance = aws_instance.automate.id
   vpc      = true
 }
-
-output "automate_server_url" {
-  value = aws_eip.eip.public_dns
-}

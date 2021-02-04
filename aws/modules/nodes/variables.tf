@@ -5,6 +5,11 @@ variable "resource_location" {
   default     = "ap-south-1"
 }
 
+variable "ami_id" {
+  type = string
+  description = "AMI ID for windows nodes"
+}
+
 variable "subnet_id" {
   type        = string
   description = "Subnet ID"
@@ -37,6 +42,10 @@ variable "windows_node_instance_type" {
 variable "chef_server_url" {
   type = string
   description = "Public url of the automate server"
+}
+variable "client_name" {
+  type = string
+  description = "Client name for validation"
 }
 
 variable "node_depends_on" {

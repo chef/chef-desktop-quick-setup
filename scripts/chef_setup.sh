@@ -1,5 +1,9 @@
 #!/bin/bash
 
+install_chef_client() {
+  curl -L https://omnitruck.chef.io/install.sh | sudo bash
+}
+
 # Download desktop-config-lite cookbook from remote and extract contents inside files/desktop-content-lite.
 download_cookbook() {
   local url="https://supermarket.chef.io/cookbooks/desktop-config-lite/download"
@@ -12,5 +16,6 @@ download_cookbook() {
   rm ./desktop-config-lite.tgz
 }
 
+install_chef_client
 cd ~/.chef/cookbooks && download_cookbook
 knife cookbook upload desktop-config-lite

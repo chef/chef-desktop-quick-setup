@@ -58,6 +58,7 @@ module "nodes" {
   allow_rdp         = aws_security_group.allow_win_rdp_connection.id
   key_name          = aws_key_pair.awskp.key_name
   chef_server_url   = "https://${module.automate.automate_server_url}/organizations/${var.automate_credentials.org_name}"
+  client_name       = var.automate_credentials.user_name
   node_depends_on = [
     # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
     aws_route_table_association.subnet_association

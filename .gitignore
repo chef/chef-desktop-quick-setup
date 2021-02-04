@@ -87,5 +87,9 @@ updatedplan
 *.nupkg
 *.msi
 
+# Keep the keys directory.
 keys/**
 !keys/.keep
+
+# Add the scripts
+!scripts/*.ps1
