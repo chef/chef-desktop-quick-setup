@@ -4,6 +4,11 @@ variable "admin_username" {
   description = "Admin username for automate server"
 }
 
+variable "admin_password_win_node" {
+  type        = string
+  description = "Admin password for windows nodes"
+}
+
 # Region
 variable "resource_location" {
   type        = string

@@ -27,40 +27,25 @@ resource "aws_instance" "node" {
     Name        = "cdqs-node"
   }
 
-  connection {
-    type     = "winrm"
-    host     = self.public_ip
-    port     = "5985"
-    user     = "Administrator"
-    password = "admin"
-    timeout  = "15m"
-    insecure = true
-  }
-
   user_data = <<EOF
     <powershell>
-      winrm quickconfig -q & winrm set winrm/config @{MaxTimeoutms="1800000"} & winrm set winrm/config/service @{AllowUnencrypted="true"} & winrm set winrm/config/service/auth @{Basic="true"} & winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1024"}'
-      netsh advfirewall firewall add rule name="WinRM in" protocol=TCP dir=in profile=any localport=5985 remoteip=any localip=any action=allow
+      # Set admin password.
       $admin = [adsi]("WinNT://./administrator, user")
-      $admin.psbase.invoke("SetPassword", "admin")
+      $admin.psbase.invoke("SetPassword", "${var.admin_password}")
+      #  Configure winrm
+      winrm quickconfig -q
+      winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+      winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+      winrm set winrm/config/service/auth '@{Basic="true"}'
+      winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="1024"}'
+      # Allow winrm connection from anywhere in firewall
+      netsh advfirewall firewall add rule name="WinRM in" protocol=TCP dir=in profile=any localport=5985 remoteip=any localip=any action=allow
+      # Stop the WinRM service, make sure it autostarts on reboot, and start it
+      net stop winrm
+      sc.exe config winrm start=auto
+      net start winrm
     </powershell>
   EOF
-
-  # provisioner "chef" {
-  #   client_options = ["chef_license 'accept'"]
-  #   run_list       = ["desktop-config-lite::default"]
-  #   node_name      = "windowsnode"
-  #   # secret_key      = file("../encrypted_data_bag_secret")
-  #   server_url      = var.chef_server_url
-  #   validation_client_name = var.client_name
-  #   recreate_client = true
-  #   user_name       = "winuser"
-  #   user_key        = file("${path.root}/../keys/user.pem")
-  #   # version         = "16.9.29"
-  #   # Since we have a self signed cert on our chef server we are setting this to :verify_none
-  #   # In production we should get a certificate and configure for the server and set this to :verify_peer
-  #   ssl_verify_mode = ":verify_none"
-  # }
 }
 
 resource "aws_eip" "node_eip" {

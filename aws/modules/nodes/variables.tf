@@ -10,6 +10,11 @@ variable "ami_id" {
   description = "AMI ID for windows nodes"
 }
 
+variable "admin_password" {
+  type = string
+  description = "Administrator password for windows nodes"
+}
+
 variable "subnet_id" {
   type        = string
   description = "Subnet ID"
@@ -51,5 +56,11 @@ variable "client_name" {
 variable "node_depends_on" {
   type = any
   description = "Resource dependencies for nodes."
+  default = []
+}
+
+variable "node_setup_depends_on" {
+  type = any
+  description = "Resource dependencies for node setup."
   default = []
 }

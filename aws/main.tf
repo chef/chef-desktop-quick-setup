@@ -52,6 +52,7 @@ module "nodes" {
   source            = "./modules/nodes"
   ami_id            = data.aws_ami.windows_2019.id
   node_count        = 2
+  admin_password    = var.admin_password_win_node
   resource_location = var.resource_location
   subnet_id         = aws_subnet.subnet.id
   allow_ssh         = aws_security_group.allow_ssh.id
@@ -60,8 +61,11 @@ module "nodes" {
   chef_server_url   = "https://${module.automate.automate_server_url}/organizations/${var.automate_credentials.org_name}"
   client_name       = var.automate_credentials.user_name
   node_depends_on = [
-    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
+    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only nodes module is run.
     aws_route_table_association.subnet_association
+  ]
+  node_setup_depends_on = [
+    module.automate.server_setup_task,
   ]
 }
 
