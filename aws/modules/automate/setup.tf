@@ -4,15 +4,10 @@ resource "null_resource" "automate_server_setup" {
   }
 
   connection {
-    type = "ssh"
-    user = var.admin_username
-    host = aws_eip.eip.public_dns
+    type        = "ssh"
+    user        = var.admin_username
+    host        = aws_eip.eip.public_dns
     private_key = file("${path.root}/${var.private_key_path}")
-  }
-
-  provisioner "file" {
-    content     = templatefile("${path.root}/../templates/automate.config.toml.tpl", { automate_fqdn = aws_eip.eip.public_dns })
-    destination = "~/config.toml"
   }
 
   provisioner "file" {
@@ -24,6 +19,7 @@ resource "null_resource" "automate_server_setup" {
       org_name          = var.automate_credentials.org_name
       org_display_name  = var.automate_credentials.org_display_name
       validator_path    = var.automate_credentials.validator_path
+      fqdn              = aws_eip.eip.public_dns
     })
     destination = "~/automate.setup.sh"
   }

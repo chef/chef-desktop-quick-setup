@@ -23,7 +23,7 @@ start_automate2_with_desktop() {
   sudo chmod +x /usr/local/bin/chef-automate
 
   echo "Installing automate and infra server"
-  sudo chef-automate deploy --product automate --product infra-server --product desktop --accept-terms-and-mlsa
+  sudo chef-automate deploy --product automate --product infra-server --product desktop --accept-terms-and-mlsa --fqdn ${fqdn}
 }
 
 setup_automate_server() {
@@ -39,9 +39,6 @@ setup_automate_server() {
   echo "Creating organisation with name ${org_name}, full name - ${org_display_name}"
   sudo chef-server-ctl org-create ${org_name} "${org_display_name}" --association_user ${user_name} --filename ${validator_path}
   echo "Credentials saved to ${validator_path}"
-
-  # Patch automate server and update the fqdn to be the same as public url of the server.
-  sudo chef-automate config patch config.toml
 
   echo "Server is up and running. Please log in using these credentials:"
   sudo cat ~/automate-credentials.toml
