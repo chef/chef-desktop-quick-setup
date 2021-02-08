@@ -27,4 +27,15 @@ resource "null_resource" "automate_server_setup" {
   provisioner "remote-exec" {
     inline = ["/bin/bash ~/automate.setup.sh"]
   }
+
+  provisioner "local-exec" {
+    command = templatefile("${path.root}/../templates/extract_certs.sh.tpl", {
+      user_name = var.admin_username
+      ssh_key = "${path.root}/${var.private_key_path}"
+      server_ip = aws_eip.eip.public_ip
+      client_name = var.automate_credentials.user_name
+      validator_path = var.automate_credentials.validator_path
+      local_path = "${path.root}/../keys"
+    })
+  }
 }
