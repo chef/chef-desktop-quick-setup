@@ -12,7 +12,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "node" {
-  # count                       = var.node_count
+  count                       = var.node_count
   ami                         = var.ami_id # Windows base server 2019 ami
   instance_type               = var.windows_node_instance_type
   associate_public_ip_address = true
@@ -24,7 +24,7 @@ resource "aws_instance" "node" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
-    Name        = "cdqs-node"
+    Name        = "cdqs-node-${count.index}"
   }
 
   user_data = <<EOF
@@ -49,7 +49,7 @@ resource "aws_instance" "node" {
 }
 
 resource "aws_eip" "node_eip" {
-  # count = var.
-  instance = aws_instance.node.id
+  count = var.node_count
+  instance = aws_instance.node[count.index].id
   vpc      = true
 }
