@@ -31,7 +31,7 @@ setup_automate_server() {
   start_automate2_with_desktop
 
   local first_name last_name
-  read first_name last_name <<< $(echo ${user_display_name} | awk '{print $1; print $NF}')
+  read first_name last_name <<< $(echo ${user_display_name} | awk '{print $1, $NF}')
 
   # Create user and organisation in the automate server
   echo "Creating user with name ${user_name}"
