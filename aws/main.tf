@@ -33,13 +33,13 @@ module "automate" {
 }
 
 # Module for creating the munki repo and pushing to s3 bucket.
-module "munki" {
-  source            = "./modules/munki"
-  resource_location = var.resource_location
-  subnet_id         = aws_subnet.subnet.id
-  security_group_id = aws_security_group.allow_ssh.id
-  key_name          = aws_key_pair.awskp.key_name
-}
+# module "munki" {
+#   source            = "./modules/munki"
+#   resource_location = var.resource_location
+#   subnet_id         = aws_subnet.subnet.id
+#   security_group_id = aws_security_group.allow_ssh.id
+#   key_name          = aws_key_pair.awskp.key_name
+# }
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
 module "gorilla" {
@@ -72,4 +72,10 @@ module "nodes" {
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")
+}
+
+resource "null_resource" "cookbook_setup" {
+  provisioner "local-exec" {
+    command = file("../scripts/chef_setup")
+  }
 }
