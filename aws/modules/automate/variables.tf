@@ -62,3 +62,15 @@ variable "automate_depends_on" {
   description = "Resource dependencies for automate server."
   default = []
 }
+
+variable "knife_profile_name" {
+  type = string
+  description = "Name of the profile for the server"
+  default = "cdqs-profile"
+}
+
+variable "policy_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy"
+}

@@ -55,3 +55,15 @@ variable "private_key_path" {
   description = "Private key path (relative to terraform's path.root value)"
   default = "../keys/aws_terraform"
 }
+
+variable "knife_profile_name" {
+  type = string
+  description = "Name of the profile for the server"
+  default = "cdqs-profile"
+}
+
+variable "policy_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy"
+}

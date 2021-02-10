@@ -11,4 +11,20 @@ download_cookbook() {
   rm ./desktop-config-lite.tgz
 }
 
-cd ~/.chef/cookbooks && download_cookbook
+setup_cookbook() {
+  cd ~/.chef/cookbooks/desktop-config-lite
+  cat <<-EOF > Policyfile.rb
+name 'desktop-config-lite'
+run_list 'desktop-config-lite::default'
+cookbook 'desktop-config-lite', path: '.'
+EOF
+  cat <<-EOF > recipes/default.rb
+include_recipe 'desktop-config-lite::macos' if macos?
+include_recipe 'desktop-config-lite::windows' if windows?
+EOF
+  chef install Policyfile.rb
+}
+
+echo "Setting up cookbook in local"
+cd ~/.chef/cookbooks
+download_cookbook && setup_cookbook

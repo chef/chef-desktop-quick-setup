@@ -39,3 +39,31 @@ resource "null_resource" "automate_server_setup" {
     })
   }
 }
+
+resource "local_file" "knife_profile" {
+  content = templatefile("${path.root}/../templates/knife_profile.tpl", {
+    knife_profile_name = var.knife_profile_name
+    client_name = var.automate_credentials.user_name
+    automate_client_key_file = "${abspath(path.root)}/../keys/${var.automate_credentials.user_name}.pem"
+    chef_server_url = "https://${aws_eip.eip.public_dns}/organizations/${var.automate_credentials.org_name}"
+  })
+  filename = "${path.root}/../files/knife_profile"
+}
+
+resource "null_resource" "setup_policy" {
+  triggers = {
+    knife_profile_name = var.knife_profile_name
+  }
+  depends_on = [ null_resource.automate_server_setup, local_file.knife_profile ]
+  provisioner "local-exec" {
+    command = templatefile("${path.root}/../templates/knife_setup.tpl", {
+      knife_profile_name = var.knife_profile_name
+      policy_name = var.policy_name
+      knife_profile = abspath(local_file.knife_profile.filename)
+    })
+  }
+  provisioner "local-exec" {
+    when = destroy
+    command = "sed -i '' \"/\\[${self.triggers.knife_profile_name}\\]/{N;N;N;d;}\" ~/.chef/credentials"
+  }
+}
