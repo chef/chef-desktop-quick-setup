@@ -3,6 +3,8 @@ cat ${knife_profile} >> ~/.chef/credentials
 knife config use-profile ${knife_profile_name}
 knife ssl fetch
 
+${cookbook_setup_script}
+
 echo "Setting up policy.."
 cd ~/.chef/cookbooks/desktop-config-lite
 chef update

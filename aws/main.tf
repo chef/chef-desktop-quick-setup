@@ -29,8 +29,6 @@ module "automate" {
   automate_depends_on = [
     # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
     aws_route_table_association.subnet_association,
-    # Explicit dependency on cookbook so that automate module can push policy to server after knife setup.
-    null_resource.cookbook_setup
   ]
   knife_profile_name = var.knife_profile_name
   policy_name = var.policy_name
@@ -77,10 +75,4 @@ module "nodes" {
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")
-}
-
-resource "null_resource" "cookbook_setup" {
-  provisioner "local-exec" {
-    command = "../scripts/chef_setup"
-  }
 }
