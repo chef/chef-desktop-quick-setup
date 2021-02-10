@@ -8,4 +8,7 @@ cd ~/.chef/cookbooks/desktop-config-lite
 chef update
 chef push ${policy_name} 'Policyfile.rb'
 
+echo "Uploading cookbook.."
+knife cookbook upload desktop-config-lite
+
 rm ${knife_profile}

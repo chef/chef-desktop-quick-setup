@@ -69,7 +69,8 @@ module "nodes" {
     aws_route_table_association.subnet_association
   ]
   node_setup_depends_on = [
-    module.automate.server_setup_task,
+    module.automate.automate_server_setup, #The node setup implicitly depends on this resource, but it is mentioned here to avoid ambiguity.
+    module.automate.setup_policy
   ]
 }
 
