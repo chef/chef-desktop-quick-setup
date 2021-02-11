@@ -51,6 +51,7 @@ module "iam" {
 module "gorilla" {
   source            = "./modules/gorilla"
   resource_location = var.resource_location
+  gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
 }
 
 # Module for creating virtual nodes.
@@ -74,6 +75,10 @@ module "nodes" {
     module.automate.automate_server_setup, #The node setup implicitly depends on this resource, but it is mentioned here to avoid ambiguity.
     module.automate.setup_policy
   ]
+  iam_instance_profile_name = module.iam.instance_profile_name
+  gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
+  gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
+  gorilla_repo_bucket_url = module.gorilla.gorilla_repo_bucket_url
 }
 
 resource "aws_key_pair" "awskp" {

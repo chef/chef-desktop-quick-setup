@@ -20,6 +20,7 @@ resource "aws_instance" "node" {
   subnet_id                   = var.subnet_id
   key_name                    = var.key_name
   depends_on                  = [var.node_depends_on]
+  iam_instance_profile        = var.iam_instance_profile_name
 
   tags = {
     Environment = "Chef Desktop flow"
@@ -49,7 +50,7 @@ resource "aws_instance" "node" {
 }
 
 resource "aws_eip" "node_eip" {
-  count = var.node_count
+  count    = var.node_count
   instance = aws_instance.node[count.index].id
   vpc      = true
 }

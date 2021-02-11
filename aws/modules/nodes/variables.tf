@@ -64,3 +64,23 @@ variable "node_setup_depends_on" {
   description = "Resource dependencies for node setup."
   default = []
 }
+
+variable "iam_instance_profile_name" {
+  type = string
+  description = "S3 access IAM instance profile name"
+}
+
+variable "gorilla_repo_bucket_url" {
+  type = string
+  description = "URL to gorilla repository/bucket"
+}
+
+variable "gorilla_s3_bucket_name" {
+  type = string
+  description = "URL to gorilla repository/bucket"
+}
+
+variable "gorilla_binary_s3_object_key" {
+  type = string
+  description = "s3 bucket object key for gorilla binary"
+}
