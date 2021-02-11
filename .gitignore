@@ -93,4 +93,8 @@ keys/**
 
 # Add the scripts
 !scripts/*.ps1
-!files/gorilla.exe
+# Keep the gorilla executable. Latest can be downloaded from https://github.com/1dustindavis/gorilla/releases
+# Current release: 1.0.0.5
+# Note: Why should we bundle a specific version with repository than always resolve to latest version via scripts? 
+# - Gorilla seems to be coming out on beta releases so we should probably stick with the gorilla binaries tested during development.
+!files/gorilla-*.exe
