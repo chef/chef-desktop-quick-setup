@@ -1,16 +1,6 @@
 ---
-name: example
+name: cdqsmanifest
 managed_installs:
-  - Chocolatey
-  - ChocolateyCoreExtension
-  - VSCode
-  - Firefox
-
-managed_uninstalls:
-
-managed_updates:
-
-included_manifests:
-
+  - GoogleChrome
 catalogs:
-  - example
+  - catalog

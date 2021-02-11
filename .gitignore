@@ -93,3 +93,4 @@ keys/**
 
 # Add the scripts
 !scripts/*.ps1
+!files/gorilla.exe
