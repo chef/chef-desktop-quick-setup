@@ -67,3 +67,9 @@ variable "policy_name" {
   description = "Name of the policy to create on server"
   default = "cdqs-policy"
 }
+
+variable "gorilla_s3_bucket_name" {
+  type = string
+  description = "Name of the bucket containing gorilla repository"
+  default = "cdqs-gorilla-repository"
+}

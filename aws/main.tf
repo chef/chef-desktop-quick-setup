@@ -34,6 +34,10 @@ module "automate" {
   policy_name = var.policy_name
 }
 
+module "iam" {
+  source = "./modules/iam"
+}
+
 # Module for creating the munki repo and pushing to s3 bucket.
 # module "munki" {
 #   source            = "./modules/munki"
