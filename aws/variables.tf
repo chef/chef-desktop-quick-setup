@@ -49,11 +49,22 @@ variable "public_key_path" {
   default = "../keys/aws_terraform.pub"
 }
 
+variable "macdhost_public_key_path" {
+  type = string
+  description = "Public key path (relative to terraform's path.root value)"
+  default = "../keys/aws_terraform_macdhost.pub"
+}
+
 # Path to AWS private key.
 variable "private_key_path" {
   type = string
   description = "Private key path (relative to terraform's path.root value)"
   default = "../keys/aws_terraform"
+}
+variable "macdhost_private_key_path" {
+  type = string
+  description = "Private key path (relative to terraform's path.root value)"
+  default = "../keys/aws_terraform_macdhost"
 }
 
 variable "knife_profile_name" {
@@ -68,8 +79,27 @@ variable "policy_name" {
   default = "cdqs-policy"
 }
 
-variable "gorilla_s3_bucket_name" {
+variable "bucket_name" {
   type = string
   description = "Name of the bucket containing gorilla repository"
-  default = "cdqs-gorilla-repository"
+  default = "cdqs-app-mgmt"
+}
+
+variable "macdhost_vpc_region" {
+  type = string
+  description = "VPC region for mac metal instances"
+  validation {
+    condition = contains(["us-east-1", "us-east-2", "us-west-2", "eu-west-1", "ap-southeast-1"], var.macdhost_vpc_region)
+    error_message = "Unsupported region for mac instances."
+  }
+}
+
+variable "macdhost_availability_zone" {
+  type = string
+  description = "Availability zone for mac metal instances"
+}
+
+variable "macdhost_id" {
+  type = string
+  description = "mac dedicated host id"
 }

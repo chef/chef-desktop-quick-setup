@@ -31,7 +31,7 @@ module "automate" {
     aws_route_table_association.subnet_association,
   ]
   knife_profile_name = var.knife_profile_name
-  policy_name = var.policy_name
+  policy_name        = var.policy_name
 }
 
 # Set up IAM profile to provide access to s3 bucket from virtual nodes.
@@ -42,17 +42,19 @@ module "iam" {
 # Module for creating the munki repo and pushing to s3 bucket.
 # module "munki" {
 #   source            = "./modules/munki"
-#   resource_location = var.resource_location
-#   subnet_id         = aws_subnet.subnet.id
+#   ami_id            = data.aws_ami.macos_catalina.id
+#   resource_location = var.macdhost_availability_zone
+#   subnet_id         = aws_subnet.macdhost_vpc_subnet.id
 #   security_group_id = aws_security_group.allow_ssh.id
-#   key_name          = aws_key_pair.awskp.key_name
+#   key_name          = aws_key_pair.awskp_mac.key_name
+#   host_id           = var.macdhost_id
 # }
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
 module "gorilla" {
   source            = "./modules/gorilla"
   resource_location = var.resource_location
-  bucket = aws_s3_bucket.cdqs_app_mgmt.bucket
+  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
 }
 
 # Module for creating virtual nodes.
@@ -79,16 +81,22 @@ module "nodes" {
     # Set up node only after cookbook is available on the server.
     module.automate.setup_policy 
   ]
-  iam_instance_profile_name = module.iam.instance_profile_name
-  bucket_name = var.bucket_name
+  iam_instance_profile_name    = module.iam.instance_profile_name
+  bucket_name                  = var.bucket_name
   gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
-  gorilla_repo_bucket_url = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
+  gorilla_repo_bucket_url      = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")
+  depends_on = [ aws_key_pair.awskp_mac ]
+}
+
+resource "aws_key_pair" "awskp_mac" {
+  key_name   = "awskp_mac"
+  public_key = file("./${var.macdhost_public_key_path}")
 }
 
 # Common bucket for gorilla and munki repositories.
