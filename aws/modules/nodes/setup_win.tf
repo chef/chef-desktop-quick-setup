@@ -62,7 +62,7 @@ resource "null_resource" "gorilla_setup" {
   # Copy the gorilla binary from s3 bucket and run it to install the applications specified in the catalog.
   provisioner "remote-exec" {
     inline = [
-    "powershell Copy-S3Object -Bucket ${var.gorilla_s3_bucket_name} -Key ${var.gorilla_binary_s3_object_key} -LocalFile C:\\ProgramData\\gorilla\\gorilla.exe",
+    "powershell Copy-S3Object -Bucket ${var.bucket_name} -Key ${var.gorilla_binary_s3_object_key} -LocalFile C:\\ProgramData\\gorilla\\gorilla.exe",
     "powershell C:\\ProgramData\\gorilla\\gorilla.exe"
     ]
   }

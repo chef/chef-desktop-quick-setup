@@ -52,7 +52,7 @@ module "iam" {
 module "gorilla" {
   source            = "./modules/gorilla"
   resource_location = var.resource_location
-  gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
+  bucket = aws_s3_bucket.cdqs_app_mgmt.bucket
 }
 
 # Module for creating virtual nodes.
@@ -80,13 +80,19 @@ module "nodes" {
     module.automate.setup_policy 
   ]
   iam_instance_profile_name = module.iam.instance_profile_name
-  gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
+  bucket_name = var.bucket_name
   gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
-  gorilla_repo_bucket_url = module.gorilla.gorilla_repo_bucket_url
+  gorilla_repo_bucket_url = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")
+}
+
+# Common bucket for gorilla and munki repositories.
+resource "aws_s3_bucket" "cdqs_app_mgmt" {
+  bucket = var.bucket_name
+  acl    = "private"
 }

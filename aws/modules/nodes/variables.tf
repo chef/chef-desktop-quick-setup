@@ -75,9 +75,9 @@ variable "gorilla_repo_bucket_url" {
   description = "URL to gorilla repository/bucket"
 }
 
-variable "gorilla_s3_bucket_name" {
+variable "bucket_name" {
   type = string
-  description = "URL to gorilla repository/bucket"
+  description = "URL to bucket containing gorilla repository"
 }
 
 variable "gorilla_binary_s3_object_key" {
