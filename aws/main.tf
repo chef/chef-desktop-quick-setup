@@ -40,15 +40,20 @@ module "iam" {
 }
 
 # Module for creating the munki repo and pushing to s3 bucket.
-# module "munki" {
-#   source            = "./modules/munki"
-#   ami_id            = data.aws_ami.macos_catalina.id
-#   resource_location = var.macdhost_availability_zone
-#   subnet_id         = aws_subnet.macdhost_vpc_subnet.id
-#   security_group_id = aws_security_group.allow_ssh.id
-#   key_name          = aws_key_pair.awskp_mac.key_name
-#   host_id           = var.macdhost_id
-# }
+module "munki" {
+  source            = "./modules/munki"
+  # ami_id            = data.aws_ami.macos_catalina.id
+  ami_id            = "ami-07f480f3fa002bc15"
+  resource_location = var.resource_location
+  subnet_id         = aws_subnet.subnet.id
+  security_group_id = aws_security_group.allow_ssh.id
+  key_name          = aws_key_pair.awskp.key_name
+  munki_depends_on = [
+    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
+    module.automate,
+  ]
+  macdhost_id           = var.macdhost_id
+}
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
 module "gorilla" {
@@ -91,12 +96,6 @@ module "nodes" {
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")
-  depends_on = [ aws_key_pair.awskp_mac ]
-}
-
-resource "aws_key_pair" "awskp_mac" {
-  key_name   = "awskp_mac"
-  public_key = file("./${var.macdhost_public_key_path}")
 }
 
 # Common bucket for gorilla and munki repositories.
