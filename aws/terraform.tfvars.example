@@ -1,0 +1,16 @@
+admin_username          = "ubuntu"
+resource_location       = "us-east-1" # We can use any region we have available.
+availability_zone       = "us-east-1a" # We can use any zone we have available.
+automate_dns_name_label = "chefdesktopautomatedemo"
+automate_credentials = {
+  user_name         = "myclient"
+  user_display_name = "My Client"
+  user_email        = "myclient@example.com"
+  user_password     = "clientautomateaws2021"
+  org_name          = "automatedemoorganisation"
+  org_display_name  = "Automate Demo Organisation"
+  validator_path    = "validator.pem"
+}
+admin_password_win_node = "admin@12345"
+# We need a dedicated host ID if we plan on using munki and macos virtual nodes. The ID will be available on the console once we manually create it.
+macdhost_id = "<dedicated_host_id>"
