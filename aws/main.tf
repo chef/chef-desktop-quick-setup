@@ -27,13 +27,14 @@ module "automate" {
   key_name                = aws_key_pair.awskp.key_name
   automate_dns_name_label = var.automate_dns_name_label
   automate_depends_on = [
-    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
+    # Explicit dependency on the route table association with the subnet to make sure route tables are created when automate module is run.
     aws_route_table_association.subnet_association,
   ]
   knife_profile_name = var.knife_profile_name
   policy_name = var.policy_name
 }
 
+# Set up IAM profile to provide access to s3 bucket from virtual nodes.
 module "iam" {
   source = "./modules/iam"
 }
@@ -69,11 +70,14 @@ module "nodes" {
   client_name       = var.automate_credentials.user_name
   node_depends_on = [
     # Explicit dependency on the route table association with the subnet to make sure route tables are created when only nodes module is run.
+    # Might not be necessary though, because automate module is an implicit dependency with this association explicitly set as a dep for that.
     aws_route_table_association.subnet_association
   ]
   node_setup_depends_on = [
-    module.automate.automate_server_setup, #The node setup implicitly depends on this resource, but it is mentioned here to avoid ambiguity.
-    module.automate.setup_policy
+    #The node setup implicitly depends on this resource, but it is mentioned here to avoid ambiguity.
+    module.automate.automate_server_setup,
+    # Set up node only after cookbook is available on the server.
+    module.automate.setup_policy 
   ]
   iam_instance_profile_name = module.iam.instance_profile_name
   gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
@@ -81,6 +85,7 @@ module "nodes" {
   gorilla_repo_bucket_url = module.gorilla.gorilla_repo_bucket_url
 }
 
+# Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")

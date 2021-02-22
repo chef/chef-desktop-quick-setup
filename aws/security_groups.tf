@@ -37,6 +37,7 @@ resource "aws_security_group" "allow_win_rdp_connection" {
   description = "Allow RDP clients to connect to windows nodes"
   vpc_id      = aws_vpc.vpc.id
 
+  # Allow RDP client to connect to the instance.
   ingress {
     description = "RDP"
     from_port   = 3389
@@ -45,6 +46,7 @@ resource "aws_security_group" "allow_win_rdp_connection" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Allow WinRM connections to the instance.
   ingress {
     description = "WINRM"
     from_port   = 5985
@@ -52,6 +54,7 @@ resource "aws_security_group" "allow_win_rdp_connection" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   # Re create the default allow all egress rule.
   egress {
     from_port   = 0
