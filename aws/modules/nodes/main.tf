@@ -20,6 +20,7 @@ resource "aws_instance" "node" {
   subnet_id                   = var.subnet_id
   key_name                    = var.key_name
   depends_on                  = [var.node_depends_on]
+  # Attach instance profile for s3 bucket access.
   iam_instance_profile        = var.iam_instance_profile_name
 
   tags = {
@@ -28,6 +29,9 @@ resource "aws_instance" "node" {
     Name        = "cdqs-node-${count.index}"
   }
 
+  # This script is part of the init-script that would be run while initializing the virtual node instances.
+  # We set the password for administrator to be used for winrm connections and logging in through RDP clients.
+  # We configure and set up the winrm service to allow all connections to the winrm ports and also to run automatically on subsequent restarts.
   user_data = <<EOF
     <powershell>
       # Set admin password.

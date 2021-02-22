@@ -16,6 +16,7 @@ resource "aws_iam_role" "s3_access_role" {
 
 data "aws_iam_policy_document" "policy_document" {
   statement {
+    # Allows all actions on s3
     actions = ["s3:*"]
     resources = ["*"]
     effect = "Allow" #This is the default value, but mentioned here to avoid ambiguity.
@@ -33,6 +34,7 @@ resource "aws_iam_policy_attachment" "access_policy_attachment" {
   policy_arn = aws_iam_policy.access_policy.arn
 }
 
+# Create instance profile and export as output to be attached to the ec2 instances for virtual nodes.
 resource "aws_iam_instance_profile" "instance_profile" {
   name = "cdqs-instance-profile"
   role = aws_iam_role.s3_access_role.name

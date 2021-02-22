@@ -23,7 +23,6 @@ resource "aws_internet_gateway" "gw" {
 resource "aws_subnet" "subnet" {
   vpc_id     = aws_vpc.vpc.id
   cidr_block = "172.16.0.0/24"
-  # cidr_block        = cidrsubnet(aws_vpc.vpc.cidr_block, 3, 1)
   availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
 
