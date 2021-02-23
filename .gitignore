@@ -81,11 +81,12 @@ terraform.tfvars
 updatedplan
 
 
-# Ignore windows installers
+# Ignore installers
 *.ps1
 *.exe
 *.nupkg
 *.msi
+*.dmg
 
 # Keep the keys directory.
 keys/**
