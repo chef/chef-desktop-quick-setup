@@ -11,24 +11,22 @@ provider "aws" {
   region = var.resource_location
 }
 
-# Keep the repository inside the s3 bucket private.
-resource "aws_s3_bucket" "gorilla_repository" {
-  bucket = var.gorilla_s3_bucket_name
-  acl    = "private"
+locals {
+  all_files = fileset("${path.root}/../files/gorilla-repository", "**/*")
 }
 
-# Make the repository contents publicly readable to allow access by gorilla client on the nodes.
 resource "aws_s3_bucket_object" "upload_repository_content" {
-  for_each = fileset("${path.root}/../files/gorilla-repository", "**/*")
-  bucket   = aws_s3_bucket.gorilla_repository.bucket
-  key      = each.value
+  for_each = toset([ for item in local.all_files: item if !contains(split("/", item),".keep") ]) # Exclude .keep files.
+  bucket   = var.bucket
+  key      = "gorilla-repository/${each.value}"
   source   = "${path.root}/../files/gorilla-repository/${each.value}"
-  acl = "public-read"
+  # Make the repository contents publicly readable to allow access by gorilla client on the nodes.
+  acl      = "public-read"
 }
 
 # This s3 object is private by default since virtual nodes access it via Copy-S3Object class which will make use of the attached IAM instance profile.
 resource "aws_s3_bucket_object" "upload_gorilla_binary" {
   source = "${path.root}/../files/gorilla-1.0.0.5.exe"
-  bucket = aws_s3_bucket.gorilla_repository.bucket
-  key = "gorilla-1.0.0.5.exe"
+  bucket = var.bucket
+  key    = "gorilla-1.0.0.5.exe"
 }

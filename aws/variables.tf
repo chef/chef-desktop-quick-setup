@@ -49,7 +49,6 @@ variable "public_key_path" {
   default = "../keys/aws_terraform.pub"
 }
 
-# Path to AWS private key.
 variable "private_key_path" {
   type = string
   description = "Private key path (relative to terraform's path.root value)"
@@ -68,8 +67,19 @@ variable "policy_name" {
   default = "cdqs-policy"
 }
 
-variable "gorilla_s3_bucket_name" {
+variable "bucket_name" {
   type = string
   description = "Name of the bucket containing gorilla repository"
-  default = "cdqs-gorilla-repository"
+  default = "cdqs-app-mgmt"
+}
+
+variable "macdhost_id" {
+  type = string
+  description = "mac dedicated host id"
+}
+
+variable "create_macos_nodes" {
+  type = bool
+  description = "Whether to create a macos node and connect it to the server"
+  default = false
 }

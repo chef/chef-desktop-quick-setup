@@ -4,7 +4,7 @@ variable "resource_location" {
   description = "Region/Location for the resources"
 }
 
-variable "gorilla_s3_bucket_name" {
+variable "bucket" {
   type = string
   description = "Name of the bucket containing gorilla repository"
 }

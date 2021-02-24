@@ -1,5 +1,5 @@
 resource "null_resource" "windows_node_setup" {
-  count = var.node_count
+  count = var.windows_node_count
   depends_on = [var.node_setup_depends_on]
 
   triggers = {
@@ -34,7 +34,7 @@ resource "null_resource" "windows_node_setup" {
 
 # Set up gorilla client by creating the gorilla config file on the node, then copy the gorilla client and run it to install packages mentioned in the catalog.
 resource "null_resource" "gorilla_setup" {
-  count = var.node_count
+  count = var.windows_node_count
   depends_on = [ null_resource.windows_node_setup ]
 
   triggers = {
@@ -62,7 +62,7 @@ resource "null_resource" "gorilla_setup" {
   # Copy the gorilla binary from s3 bucket and run it to install the applications specified in the catalog.
   provisioner "remote-exec" {
     inline = [
-    "powershell Copy-S3Object -Bucket ${var.gorilla_s3_bucket_name} -Key ${var.gorilla_binary_s3_object_key} -LocalFile C:\\ProgramData\\gorilla\\gorilla.exe",
+    "powershell Copy-S3Object -Bucket ${var.bucket_name} -Key ${var.gorilla_binary_s3_object_key} -LocalFile C:\\ProgramData\\gorilla\\gorilla.exe",
     "powershell C:\\ProgramData\\gorilla\\gorilla.exe"
     ]
   }

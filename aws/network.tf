@@ -7,6 +7,7 @@ resource "aws_vpc" "vpc" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
+    Name        = "cdqs-vpc"
   }
 }
 
@@ -16,6 +17,7 @@ resource "aws_internet_gateway" "gw" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
+    Name        = "cdqs-igw"
   }
 }
 
@@ -29,6 +31,7 @@ resource "aws_subnet" "subnet" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
+    Name        = "cdqs-psubnet"
   }
 }
 
@@ -42,6 +45,7 @@ resource "aws_route_table" "rt" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
+    Name        = "cdqs-rt"
   }
 }
 

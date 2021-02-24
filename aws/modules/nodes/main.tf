@@ -12,8 +12,8 @@ provider "aws" {
 }
 
 resource "aws_instance" "node" {
-  count                       = var.node_count
-  ami                         = var.ami_id # Windows base server 2019 ami
+  count                       = var.windows_node_count
+  ami                         = var.windows_ami_id # Windows base server 2019 ami
   instance_type               = var.windows_node_instance_type
   associate_public_ip_address = true
   vpc_security_group_ids      = [var.allow_rdp]
@@ -21,7 +21,7 @@ resource "aws_instance" "node" {
   key_name                    = var.key_name
   depends_on                  = [var.node_depends_on]
   # Attach instance profile for s3 bucket access.
-  iam_instance_profile        = var.iam_instance_profile_name
+  iam_instance_profile = var.iam_instance_profile_name
 
   tags = {
     Environment = "Chef Desktop flow"
@@ -53,8 +53,32 @@ resource "aws_instance" "node" {
   EOF
 }
 
+# Create macOS instances on dedicated host
+resource "aws_instance" "macos_node" {
+  count                       = var.create_macos_nodes ? var.macos_node_count : 0
+  ami                         = var.macos_ami_id
+  instance_type               = "mac1.metal"
+  host_id                     = var.macdhost_id
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [var.allow_ssh]
+  subnet_id                   = var.subnet_id
+  key_name                    = var.key_name
+  depends_on                  = [var.node_depends_on]
+  tags = {
+    Environment = "Chef Desktop flow"
+    Team        = "Chef Desktop"
+    Name        = "cdqs-macos-node-${count.index}"
+  }
+}
+
 resource "aws_eip" "node_eip" {
-  count    = var.node_count
+  count    = var.windows_node_count
   instance = aws_instance.node[count.index].id
+  vpc      = true
+}
+
+resource "aws_eip" "macos_node_eip" {
+  count    = var.create_macos_nodes ? var.macos_node_count : 0
+  instance = aws_instance.macos_node[count.index].id
   vpc      = true
 }

@@ -31,7 +31,7 @@ module "automate" {
     aws_route_table_association.subnet_association,
   ]
   knife_profile_name = var.knife_profile_name
-  policy_name = var.policy_name
+  policy_name        = var.policy_name
 }
 
 # Set up IAM profile to provide access to s3 bucket from virtual nodes.
@@ -40,26 +40,24 @@ module "iam" {
 }
 
 # Module for creating the munki repo and pushing to s3 bucket.
-# module "munki" {
-#   source            = "./modules/munki"
-#   resource_location = var.resource_location
-#   subnet_id         = aws_subnet.subnet.id
-#   security_group_id = aws_security_group.allow_ssh.id
-#   key_name          = aws_key_pair.awskp.key_name
-# }
+module "munki" {
+  source = "./modules/munki"
+  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
+  resource_location = var.resource_location
+}
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
 module "gorilla" {
   source            = "./modules/gorilla"
   resource_location = var.resource_location
-  gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
+  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
 }
 
 # Module for creating virtual nodes.
 module "nodes" {
   source            = "./modules/nodes"
-  ami_id            = data.aws_ami.windows_2019.id
-  node_count        = 2
+  windows_ami_id    = data.aws_ami.windows_2019.id
+  macos_ami_id      = "ami-06ab3cdb10aca3927"
   admin_password    = var.admin_password_win_node
   resource_location = var.resource_location
   subnet_id         = aws_subnet.subnet.id
@@ -77,16 +75,25 @@ module "nodes" {
     #The node setup implicitly depends on this resource, but it is mentioned here to avoid ambiguity.
     module.automate.automate_server_setup,
     # Set up node only after cookbook is available on the server.
-    module.automate.setup_policy 
+    module.automate.setup_policy
   ]
-  iam_instance_profile_name = module.iam.instance_profile_name
-  gorilla_s3_bucket_name = var.gorilla_s3_bucket_name
+  iam_instance_profile_name    = module.iam.instance_profile_name
+  bucket_name                  = var.bucket_name
   gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
-  gorilla_repo_bucket_url = module.gorilla.gorilla_repo_bucket_url
+  gorilla_repo_bucket_url      = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
+  munki_repo_bucket_url        = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository/"
+  macdhost_id                  = var.macdhost_id
+  create_macos_nodes           = var.create_macos_nodes
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
   key_name   = "awskp"
   public_key = file("./${var.public_key_path}")
+}
+
+# Common bucket for gorilla and munki repositories.
+resource "aws_s3_bucket" "cdqs_app_mgmt" {
+  bucket = var.bucket_name
+  acl    = "private"
 }

@@ -39,3 +39,20 @@ data "aws_ami" "windows_2019" {
     values = ["hvm"]
   }
 }
+
+# data "aws_ami" "macos_catalina" {
+#   most_recent = true
+#   owners = ["amazon"]
+#   filter {
+#     name = "name"
+#     values = ["amzn-ec2-macos-10.15.7*"]
+#   }
+#   filter {
+#     name   = "root-device-type"
+#     values = ["ebs"]
+#   }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+# }
