@@ -41,18 +41,9 @@ module "iam" {
 
 # Module for creating the munki repo and pushing to s3 bucket.
 module "munki" {
-  source            = "./modules/munki"
-  # ami_id            = data.aws_ami.macos_catalina.id
-  ami_id            = "ami-07f480f3fa002bc15"
+  source = "./modules/munki"
+  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
   resource_location = var.resource_location
-  subnet_id         = aws_subnet.subnet.id
-  security_group_id = aws_security_group.allow_ssh.id
-  key_name          = aws_key_pair.awskp.key_name
-  munki_depends_on = [
-    # Explicit dependency on the route table association with the subnet to make sure route tables are created when only automate module is run.
-    module.automate,
-  ]
-  macdhost_id           = var.macdhost_id
 }
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
@@ -65,8 +56,8 @@ module "gorilla" {
 # Module for creating virtual nodes.
 module "nodes" {
   source            = "./modules/nodes"
-  ami_id            = data.aws_ami.windows_2019.id
-  node_count        = 2
+  windows_ami_id    = data.aws_ami.windows_2019.id
+  macos_ami_id      = "ami-06ab3cdb10aca3927"
   admin_password    = var.admin_password_win_node
   resource_location = var.resource_location
   subnet_id         = aws_subnet.subnet.id
@@ -84,12 +75,15 @@ module "nodes" {
     #The node setup implicitly depends on this resource, but it is mentioned here to avoid ambiguity.
     module.automate.automate_server_setup,
     # Set up node only after cookbook is available on the server.
-    module.automate.setup_policy 
+    module.automate.setup_policy
   ]
   iam_instance_profile_name    = module.iam.instance_profile_name
   bucket_name                  = var.bucket_name
   gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
   gorilla_repo_bucket_url      = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
+  munki_repo_bucket_url        = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository/"
+  macdhost_id                  = var.macdhost_id
+  create_macos_nodes           = var.create_macos_nodes
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.

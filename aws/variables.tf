@@ -77,3 +77,9 @@ variable "macdhost_id" {
   type = string
   description = "mac dedicated host id"
 }
+
+variable "create_macos_nodes" {
+  type = bool
+  description = "Whether to create a macos node and connect it to the server"
+  default = false
+}

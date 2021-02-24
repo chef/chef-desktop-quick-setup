@@ -5,13 +5,18 @@ variable "resource_location" {
   default     = "ap-south-1"
 }
 
-variable "ami_id" {
-  type = string
+variable "windows_ami_id" {
+  type        = string
   description = "AMI ID for windows nodes"
 }
 
+variable "macos_ami_id" {
+  type        = string
+  description = "AMI ID for macos nodes"
+}
+
 variable "admin_password" {
-  type = string
+  type        = string
   description = "Administrator password for windows nodes"
 }
 
@@ -35,9 +40,16 @@ variable "key_name" {
   description = "Key name for AWS"
 }
 
-variable "node_count" {
-  type = number
-  description = "Number of nodes"
+variable "windows_node_count" {
+  type        = number
+  description = "Number of windows nodes"
+  default     = 2
+}
+
+variable "macos_node_count" {
+  type        = number
+  description = "Number of macos nodes"
+  default     = 1
 }
 
 variable "windows_node_instance_type" {
@@ -45,42 +57,64 @@ variable "windows_node_instance_type" {
 }
 
 variable "chef_server_url" {
-  type = string
+  type        = string
   description = "Public url of the automate server"
 }
 variable "client_name" {
-  type = string
+  type        = string
   description = "Client name for validation"
 }
 
 variable "node_depends_on" {
-  type = any
+  type        = any
   description = "Resource dependencies for nodes."
-  default = []
+  default     = []
 }
 
 variable "node_setup_depends_on" {
-  type = any
+  type        = any
   description = "Resource dependencies for node setup."
-  default = []
+  default     = []
 }
 
 variable "iam_instance_profile_name" {
-  type = string
+  type        = string
   description = "S3 access IAM instance profile name"
 }
 
 variable "gorilla_repo_bucket_url" {
-  type = string
-  description = "URL to gorilla repository/bucket"
+  type        = string
+  description = "URL to gorilla repository/bucket-object"
+}
+
+variable "munki_repo_bucket_url" {
+  type        = string
+  description = "URL to munki repository/bucket-object"
 }
 
 variable "bucket_name" {
-  type = string
+  type        = string
   description = "URL to bucket containing gorilla repository"
 }
 
 variable "gorilla_binary_s3_object_key" {
-  type = string
+  type        = string
   description = "s3 bucket object key for gorilla binary"
+}
+
+variable "create_macos_nodes" {
+  type        = bool
+  description = "Whether to create a macos node and connect it to the server"
+  default     = false
+}
+
+variable "macdhost_id" {
+  type        = string
+  description = "mac dedicated host id"
+}
+
+variable "private_key_path" {
+  type        = string
+  description = "Private key path"
+  default     = "../keys/aws_terraform"
 }

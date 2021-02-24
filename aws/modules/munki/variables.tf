@@ -5,32 +5,7 @@ variable "resource_location" {
   default     = "ap-south-1"
 }
 
-variable "subnet_id" {
-  type        = string
-  description = "Subnet ID"
-}
-
-variable "ami_id" {
+variable "bucket" {
   type = string
-  description = "AMI ID for windows nodes"
-}
-
-variable "security_group_id" {
-  type        = string
-  description = "Security group ID"
-}
-
-variable "key_name" {
-  type        = string
-  description = "Key name for AWS"
-}
-
-variable "macdhost_id" {
-  type = string
-  description = "mac dedicated host id"
-}
-
-variable "munki_depends_on" {
-  type = any
-  description = "Dependencies for munki module"
+  description = "Name of the bucket containing munki repository"
 }
