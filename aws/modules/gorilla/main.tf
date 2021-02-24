@@ -11,12 +11,16 @@ provider "aws" {
   region = var.resource_location
 }
 
-# Make the repository contents publicly readable to allow access by gorilla client on the nodes.
+locals {
+  all_files = fileset("${path.root}/../files/gorilla-repository", "**/*")
+}
+
 resource "aws_s3_bucket_object" "upload_repository_content" {
-  for_each = fileset("${path.root}/../files/gorilla-repository", "**/*")
+  for_each = toset([ for item in local.all_files: item if !contains(split("/", item),".keep") ]) # Exclude .keep files.
   bucket   = var.bucket
   key      = "gorilla-repository/${each.value}"
   source   = "${path.root}/../files/gorilla-repository/${each.value}"
+  # Make the repository contents publicly readable to allow access by gorilla client on the nodes.
   acl      = "public-read"
 }
 
