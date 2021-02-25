@@ -64,6 +64,19 @@ resource "aws_instance" "macos_node" {
   subnet_id                   = var.subnet_id
   key_name                    = var.key_name
   depends_on                  = [var.node_depends_on]
+  # Attach instance profile for s3 bucket access.
+  iam_instance_profile = var.iam_instance_profile_name
+
+  # macOS instances are taking quite a bit of time to allow ssh into the systems after their creation
+  # to run scripts. So we can pass the scripts for node bootstrapping, chef client run, munki client
+  # configuration and run on user_data. This seems to be the only graceful way of doing this at this time.
+  user_data = templatefile("${path.root}/../templates/macos.setup.tpl", {
+    chef_server_url = var.chef_server_url
+    node_name       = "macosnode-${count.index}"
+    munki_repo_url  = var.munki_repo_bucket_url
+    validator_key   = file("${path.root}/../keys/validator.pem")
+  })
+
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"

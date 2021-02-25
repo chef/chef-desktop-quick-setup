@@ -1,5 +1,5 @@
 resource "null_resource" "windows_node_setup" {
-  count = var.windows_node_count
+  count      = var.windows_node_count
   depends_on = [var.node_setup_depends_on]
 
   triggers = {
@@ -19,13 +19,13 @@ resource "null_resource" "windows_node_setup" {
   # This might need to be changed in the future if we plan on upgrading to a newer Terraform version since it will be removed later.
   # Currently, this is marked deprecated but works fine.
   provisioner "chef" {
-    client_options = ["chef_license 'accept'"]
-    run_list       = ["desktop-config-lite::default"]
-    node_name      = "windowsnode-${count.index}"
+    client_options  = ["chef_license 'accept'"]
+    run_list        = ["desktop-config-lite::default"]
+    node_name       = "windowsnode-${count.index}"
     server_url      = var.chef_server_url
     user_name       = var.client_name
     recreate_client = true
-    user_key = file("${path.root}/../keys/${var.client_name}.pem")
+    user_key        = file("${path.root}/../keys/${var.client_name}.pem")
     # Since we have a self signed cert on our chef server we are setting this to :verify_none
     # In production we should get a certificate and configure for the server and set this to :verify_peer
     ssl_verify_mode = ":verify_none"
@@ -34,8 +34,8 @@ resource "null_resource" "windows_node_setup" {
 
 # Set up gorilla client by creating the gorilla config file on the node, then copy the gorilla client and run it to install packages mentioned in the catalog.
 resource "null_resource" "gorilla_setup" {
-  count = var.windows_node_count
-  depends_on = [ null_resource.windows_node_setup ]
+  count      = var.windows_node_count
+  depends_on = [null_resource.windows_node_setup]
 
   triggers = {
     node_id = "${aws_instance.node[count.index].id}"
@@ -62,8 +62,8 @@ resource "null_resource" "gorilla_setup" {
   # Copy the gorilla binary from s3 bucket and run it to install the applications specified in the catalog.
   provisioner "remote-exec" {
     inline = [
-    "powershell Copy-S3Object -Bucket ${var.bucket_name} -Key ${var.gorilla_binary_s3_object_key} -LocalFile C:\\ProgramData\\gorilla\\gorilla.exe",
-    "powershell C:\\ProgramData\\gorilla\\gorilla.exe"
+      "powershell Copy-S3Object -Bucket ${var.bucket_name} -Key ${var.gorilla_binary_s3_object_key} -LocalFile C:\\ProgramData\\gorilla\\gorilla.exe",
+      "powershell C:\\ProgramData\\gorilla\\gorilla.exe"
     ]
   }
 }

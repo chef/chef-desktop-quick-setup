@@ -51,7 +51,7 @@ resource "local_file" "knife_profile" {
     automate_client_key_file = "${abspath(path.root)}/../keys/${var.automate_credentials.user_name}.pem"
     chef_server_url = "https://${aws_eip.eip.public_dns}/organizations/${var.automate_credentials.org_name}"
   })
-  filename = "${path.root}/../files/knife_profile"
+  filename = "${path.root}/../.cache/knife_profile"
 }
 
 # Configure and push the cookbook to server

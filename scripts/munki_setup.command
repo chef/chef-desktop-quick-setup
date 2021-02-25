@@ -5,7 +5,7 @@ COMMAND_SCRIPT_PATH="`dirname $0`"
 configure_munki_repository() {
   echo "Resuming munki repository setup.."
   # Clean up auto launch
-  sudo rm /var/run/resume-munkitools-configuration
+  sudo rm $COMMAND_SCRIPT_PATH/../.cache/resume-munkitools-configuration
   # sed -i "Users/rchawda/chef/desktop-dev-setup-terraform/scripts/munki_setup.sh" ~/.zshrc
   # sed -i "Users/rchawda/chef/desktop-dev-setup-terraform/scripts/munki_setup.sh" ~/.bashrc
 
@@ -37,7 +37,7 @@ download_and_install_munkitools() {
 
   # echo "System will restart soon.. Setting up runs for post restart.."
   # Creating a flag file. We will check wether this exists on restart.
-  sudo touch /var/run/resume-munkitools-configuration
+  mkdir -p $COMMAND_SCRIPT_PATH/../.cache && touch $COMMAND_SCRIPT_PATH/../.cache/resume-munkitools-configuration
   # echo "Users/rchawda/chef/desktop-dev-setup-terraform/scripts/munki_setup.sh" >> ~/.zshrc
   # echo "Users/rchawda/chef/desktop-dev-setup-terraform/scripts/munki_setup.sh" >> ~/.bashrc
 
@@ -68,7 +68,7 @@ uninstall_munkitools_and_remove_cache() {
 }
 
 start_munki_repository_setup() {
-  if [ ! -f /var/run/resume-munkitools-configuration ]; then
+  if [ ! -f $COMMAND_SCRIPT_PATH/../.cache/resume-munkitools-configuration ]; then
     download_and_install_munkitools
   else
     configure_munki_repository
