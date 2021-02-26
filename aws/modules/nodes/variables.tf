@@ -32,7 +32,17 @@ variable "allow_ssh" {
 
 variable "allow_rdp" {
   type        = string
-  description = "Security group ID for allow_win_rdp_connection rule"
+  description = "Security group ID for allow_rdp rule"
+}
+
+variable "allow_winrm" {
+  type        = string
+  description = "Security group ID for allow_winrm rule"
+}
+
+variable "allow_all_outgoing_requests" {
+  type        = string
+  description = "Security group ID for allow_all_outgoing_requests rule"
 }
 
 variable "key_name" {

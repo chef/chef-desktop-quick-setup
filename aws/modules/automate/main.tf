@@ -17,7 +17,7 @@ resource "aws_instance" "automate" {
   # For more details, visit https://docs.chef.io/automate/system_requirements/
   instance_type               = "t2.xlarge"
   associate_public_ip_address = true
-  vpc_security_group_ids      = [var.security_group_id]
+  vpc_security_group_ids      = var.security_group_ids
   subnet_id                   = var.subnet_id
   key_name                    = var.key_name
   depends_on                  = [var.automate_depends_on]

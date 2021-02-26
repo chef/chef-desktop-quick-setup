@@ -16,14 +16,18 @@ provider "aws" {
 
 # Module for creating automate 2 server.
 module "automate" {
-  source                  = "./modules/automate"
-  ami_id                  = data.aws_ami.ubuntu_1804.id
-  admin_username          = var.admin_username
-  private_key_path        = var.private_key_path
-  resource_location       = var.resource_location
-  subnet_id               = aws_subnet.subnet.id
-  automate_credentials    = var.automate_credentials
-  security_group_id       = aws_security_group.allow_ssh.id
+  source               = "./modules/automate"
+  ami_id               = data.aws_ami.ubuntu_1804.id
+  admin_username       = var.admin_username
+  private_key_path     = var.private_key_path
+  resource_location    = var.resource_location
+  subnet_id            = aws_subnet.subnet.id
+  automate_credentials = var.automate_credentials
+  security_group_ids = [
+    aws_security_group.allow_ssh.id,
+    aws_security_group.allow_http.id,
+    aws_security_group.allow_all_outgoing_requests.id
+  ]
   key_name                = aws_key_pair.awskp.key_name
   automate_dns_name_label = var.automate_dns_name_label
   automate_depends_on = [
@@ -41,7 +45,7 @@ module "iam" {
 
 # Module for creating the munki repo and pushing to s3 bucket.
 module "munki" {
-  source = "./modules/munki"
+  source            = "./modules/munki"
   bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
   resource_location = var.resource_location
 }
@@ -55,17 +59,19 @@ module "gorilla" {
 
 # Module for creating virtual nodes.
 module "nodes" {
-  source            = "./modules/nodes"
-  windows_ami_id    = data.aws_ami.windows_2019.id
-  macos_ami_id      = data.aws_ami.macos_catalina.id
-  admin_password    = var.admin_password_win_node
-  resource_location = var.resource_location
-  subnet_id         = aws_subnet.subnet.id
-  allow_ssh         = aws_security_group.allow_ssh.id
-  allow_rdp         = aws_security_group.allow_win_rdp_connection.id
-  key_name          = aws_key_pair.awskp.key_name
-  chef_server_url   = "https://${module.automate.automate_server_url}/organizations/${var.automate_credentials.org_name}"
-  client_name       = var.automate_credentials.user_name
+  source                      = "./modules/nodes"
+  windows_ami_id              = data.aws_ami.windows_2019.id
+  macos_ami_id                = data.aws_ami.macos_catalina.id
+  admin_password              = var.admin_password_win_node
+  resource_location           = var.resource_location
+  subnet_id                   = aws_subnet.subnet.id
+  allow_ssh                   = aws_security_group.allow_ssh.id
+  allow_rdp                   = aws_security_group.allow_rdp.id
+  allow_winrm                 = aws_security_group.allow_winrm.id
+  allow_all_outgoing_requests = aws_security_group.allow_all_outgoing_requests.id
+  key_name                    = aws_key_pair.awskp.key_name
+  chef_server_url             = "https://${module.automate.automate_server_url}/organizations/${var.automate_credentials.org_name}"
+  client_name                 = var.automate_credentials.user_name
   node_depends_on = [
     # Explicit dependency on the route table association with the subnet to make sure route tables are created when only nodes module is run.
     # Might not be necessary though, because automate module is an implicit dependency with this association explicitly set as a dep for that.

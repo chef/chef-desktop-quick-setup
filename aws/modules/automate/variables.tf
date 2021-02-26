@@ -40,9 +40,9 @@ variable "automate_credentials" {
   description = "Automate server credentials configuration"
 }
 
-variable "security_group_id" {
-  type        = string
-  description = "Security group ID"
+variable "security_group_ids" {
+  type        = any
+  description = "List of security group IDs to attach"
 }
 
 # Path to AWS private key.

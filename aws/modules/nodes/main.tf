@@ -16,10 +16,14 @@ resource "aws_instance" "node" {
   ami                         = var.windows_ami_id # Windows base server 2019 ami
   instance_type               = var.windows_node_instance_type
   associate_public_ip_address = true
-  vpc_security_group_ids      = [var.allow_rdp]
-  subnet_id                   = var.subnet_id
-  key_name                    = var.key_name
-  depends_on                  = [var.node_depends_on]
+  vpc_security_group_ids = [
+    var.allow_rdp,
+    var.allow_winrm,
+    var.allow_all_outgoing_requests
+  ]
+  subnet_id  = var.subnet_id
+  key_name   = var.key_name
+  depends_on = [var.node_depends_on]
   # Attach instance profile for s3 bucket access.
   iam_instance_profile = var.iam_instance_profile_name
 
@@ -60,10 +64,14 @@ resource "aws_instance" "macos_node" {
   instance_type               = "mac1.metal"
   host_id                     = var.macdhost_id
   associate_public_ip_address = true
-  vpc_security_group_ids      = [var.allow_ssh]
-  subnet_id                   = var.subnet_id
-  key_name                    = var.key_name
-  depends_on                  = [var.node_depends_on]
+  vpc_security_group_ids = [
+    var.allow_ssh,
+    var.allow_rdp,
+    var.allow_all_outgoing_requests
+  ]
+  subnet_id  = var.subnet_id
+  key_name   = var.key_name
+  depends_on = [var.node_depends_on]
   # Attach instance profile for s3 bucket access.
   iam_instance_profile = var.iam_instance_profile_name
 
