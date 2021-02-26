@@ -53,4 +53,4 @@ echo "Checking and downloading updates from remote repository.."
 /usr/local/munki/managedsoftwareupdate
 # Need to run the command again because the first time runs it only downloads packages.
 echo "Installing software updates.."
-/usr/local/munki/managedsoftwareupdate
+/usr/local/munki/managedsoftwareupdate --installonly
