@@ -81,7 +81,7 @@ module "nodes" {
   bucket_name                  = var.bucket_name
   gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
   gorilla_repo_bucket_url      = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
-  munki_repo_bucket_url        = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository/"
+  munki_repo_bucket_url        = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository"
   macdhost_id                  = var.macdhost_id
   create_macos_nodes           = var.create_macos_nodes
 }
