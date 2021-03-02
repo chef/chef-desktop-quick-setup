@@ -52,6 +52,12 @@ variable "private_key_path" {
   default = "../keys/aws_terraform"
 }
 
+variable "private_ppk_key_path" {
+  type = string
+  description = "Private key path for PuTTY connection (relative to terraform's path.root value)"
+  default = "../keys/aws_terraform.ppk"
+}
+
 variable "key_name" {
   type        = string
   description = "Key name for AWS"

@@ -20,6 +20,7 @@ module "automate" {
   ami_id               = data.aws_ami.ubuntu_1804.id
   admin_username       = var.admin_username
   private_key_path     = var.private_key_path
+  private_ppk_key_path = var.private_ppk_key_path
   resource_location    = var.resource_location
   subnet_id            = aws_subnet.subnet.id
   automate_credentials = var.automate_credentials

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 init_system() {
   # Update system packages and install unzip
