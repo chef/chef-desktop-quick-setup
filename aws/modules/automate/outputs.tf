@@ -8,5 +8,5 @@ output "automate_server_setup" {
 }
 
 output "setup_policy" {
-  value = null_resource.setup_policy
+  value = [null_resource.setup_policy_macos, null_resource.setup_policy_windows]
 }
