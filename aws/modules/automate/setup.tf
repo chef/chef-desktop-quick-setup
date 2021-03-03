@@ -1,5 +1,5 @@
 locals {
-  fullPathToModule = pathexpand("${path.module}/main.tf")
+  fullPathToModule = abspath("${path.module}/main.tf")
   isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
 }
 
@@ -35,10 +35,9 @@ resource "null_resource" "automate_server_setup" {
   provisioner "remote-exec" {
     inline = ["/bin/bash ~/automate.setup.sh"]
   }
-
 }
 
-  # Transfer certificates from the server to local directory. All keys can be found in PROJECT_ROOT/keys
+# Transfer certificates from the server to local directory. All keys can be found in PROJECT_ROOT/keys
 resource "null_resource" "extract_certs_windows" {
   # Runs only on Windows.
   count = local.isMacOS ? 0 : 1
