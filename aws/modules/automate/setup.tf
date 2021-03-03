@@ -36,9 +36,9 @@ resource "null_resource" "automate_server_setup" {
     inline = ["/bin/bash ~/automate.setup.sh"]
   }
 
-  # Transfer certificates from the server to local directory. All keys can be found in PROJECT_ROOT/keys
 }
 
+  # Transfer certificates from the server to local directory. All keys can be found in PROJECT_ROOT/keys
 resource "null_resource" "extract_certs_windows" {
   # Runs only on Windows.
   count = local.isMacOS ? 0 : 1
@@ -67,7 +67,7 @@ resource "null_resource" "extract_certs_windows" {
   }
 }
 
-
+# Transfer certificates from the server to local directory. All keys can be found in PROJECT_ROOT/keys
 resource "null_resource" "extract_certs_macos" {
   # Runs only on macOS
   count = local.isMacOS ? 1 : 0
@@ -151,6 +151,7 @@ resource "local_file" "knife_setup_script" {
   filename = "${path.root}/../.cache/knife_setup.ps1"
 }
 
+# Create a powershell script for clean up
 resource "local_file" "knife_setup_cleanup" {
   # Runs only on Windows.
   count = local.isMacOS ? 0 : 1
@@ -165,11 +166,6 @@ resource "null_resource" "setup_policy_windows" {
   # Runs only on Windows.
   count = local.isMacOS ? 0 : 1
 
-  # Keep knife profile name as trigger since we want to access it inside the provisioner for this null resource.
-  # triggers = {
-  #   knife_profile_name = var.knife_profile_name
-  # }
-
   # Explicitly depend on automate and knife setup to preserve the logical order of execution.
   # Otherwise, terraform will try to run these resources in parallel and end up with an error.
   depends_on = [ null_resource.automate_server_setup, local_file.knife_setup_script, local_file.knife_setup_cleanup ]
@@ -183,9 +179,4 @@ resource "null_resource" "setup_policy_windows" {
     when = destroy
     command = "powershell -ExecutionPolicy Bypass -File ${abspath("${path.root}/../.cache/knife_setup_cleanup.ps1")}"
   }
-
-  # provisioner "local-exec" {
-  #   when = destroy
-  #   command = "Remove-Item ${abspath(local_file.knife_profile.filename)}"
-  # }
 }
