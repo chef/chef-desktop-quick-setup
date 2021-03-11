@@ -43,6 +43,7 @@ resource "aws_iam_policy_attachment" "access_policy_attachment" {
 
 # Create instance profile and export as output to be attached to the ec2 instances for virtual nodes.
 resource "aws_iam_instance_profile" "instance_profile" {
+  depends_on = [ aws_iam_policy_attachment.access_policy_attachment ]
   name = "cdqs-instance-profile"
   role = aws_iam_role.s3_access_role.name
 }
