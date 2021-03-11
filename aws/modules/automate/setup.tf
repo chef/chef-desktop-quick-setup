@@ -75,10 +75,6 @@ resource "null_resource" "extract_certs_macos" {
     trigger = null_resource.automate_server_setup.id
   }
 
-  provisioner "local-exec"{
-    command = "echo ${local.isMacOS}; echo ${aws_eip.eip.public_ip};"
-  }
-
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/extract_certs.sh.tpl", {
       user_name = var.admin_username
@@ -115,7 +111,7 @@ resource "null_resource" "setup_policy_macos" {
 
   # Explicitly depend on automate and knife setup to preserve the logical order of execution.
   # Otherwise, terraform will try to run these resources in parallel and end up with an error.
-  depends_on = [ null_resource.automate_server_setup, local_file.knife_profile ]
+  depends_on = [ null_resource.extract_certs_macos, null_resource.automate_server_setup, local_file.knife_profile ]
 
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/knife_setup.sh.tpl", {
@@ -167,7 +163,7 @@ resource "null_resource" "setup_policy_windows" {
 
   # Explicitly depend on automate and knife setup to preserve the logical order of execution.
   # Otherwise, terraform will try to run these resources in parallel and end up with an error.
-  depends_on = [ null_resource.automate_server_setup, local_file.knife_setup_script, local_file.knife_setup_cleanup ]
+  depends_on = [ null_resource.automate_server_setup, local_file.knife_setup_script, local_file.knife_setup_cleanup, null_resource.extract_certs_windows ]
 
   provisioner "local-exec" {
     command = "powershell -ExecutionPolicy Bypass -File ${abspath("${path.root}/../.cache/knife_setup.ps1")}"
