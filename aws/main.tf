@@ -53,9 +53,13 @@ module "munki" {
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
 module "gorilla" {
-  source            = "./modules/gorilla"
-  resource_location = var.resource_location
-  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
+  source             = "./modules/gorilla"
+  resource_location  = var.resource_location
+  bucket             = aws_s3_bucket.cdqs_app_mgmt.bucket
+  bucket_domain_name = aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name
+  windows_nodes      = module.nodes.windows_nodes
+  windows_node_eips  = module.nodes.windows_node_eips
+  admin_password     = var.admin_password_win_node
 }
 
 # Module for creating virtual nodes.
@@ -84,13 +88,11 @@ module "nodes" {
     # Set up node only after cookbook is available on the server.
     module.automate.setup_policy
   ]
-  iam_instance_profile_name    = module.iam.instance_profile_name
-  bucket_name                  = var.bucket_name
-  gorilla_binary_s3_object_key = module.gorilla.gorilla_binary_s3_object_key
-  gorilla_repo_bucket_url      = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/gorilla-repository/"
-  munki_repo_bucket_url        = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository"
-  macdhost_id                  = var.macdhost_id
-  create_macos_nodes           = var.create_macos_nodes
+  iam_instance_profile_name = module.iam.instance_profile_name
+  bucket_name               = var.bucket_name
+  munki_repo_bucket_url     = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository"
+  macdhost_id               = var.macdhost_id
+  create_macos_nodes        = var.create_macos_nodes
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.

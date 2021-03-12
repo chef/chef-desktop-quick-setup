@@ -92,11 +92,6 @@ variable "iam_instance_profile_name" {
   description = "S3 access IAM instance profile name"
 }
 
-variable "gorilla_repo_bucket_url" {
-  type        = string
-  description = "URL to gorilla repository/bucket-object"
-}
-
 variable "munki_repo_bucket_url" {
   type        = string
   description = "URL to munki repository/bucket-object"
@@ -105,11 +100,6 @@ variable "munki_repo_bucket_url" {
 variable "bucket_name" {
   type        = string
   description = "URL to bucket containing gorilla repository"
-}
-
-variable "gorilla_binary_s3_object_key" {
-  type        = string
-  description = "s3 bucket object key for gorilla binary"
 }
 
 variable "create_macos_nodes" {
