@@ -27,6 +27,10 @@ resource "aws_instance" "automate" {
     Team        = "Chef Desktop"
     Name = "cdqs-A2server"
   }
+
+  root_block_device {
+    volume_size = 100
+  }
 }
 
 resource "aws_eip" "eip" {
