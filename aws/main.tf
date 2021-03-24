@@ -38,6 +38,22 @@ module "automate" {
   knife_profile_name = var.knife_profile_name
   policy_group_name  = var.policy_group_name
   policy_name        = var.policy_name
+  chef_repo_name     = var.chef_repo_name
+}
+
+module "compliance" {
+  source                    = "./modules/compliance"
+  automate_server_url       = module.automate.automate_server_url
+  automate_server_public_ip = module.automate.automate_server_public_ip
+  admin_username            = var.admin_username
+  private_key_path          = var.private_key_path
+  private_ppk_key_path      = var.private_ppk_key_path
+  chef_repo_name            = var.chef_repo_name
+  policy_group_name         = var.policy_group_name
+  compliance_depends_on = [
+    module.automate.automate_server_setup,
+    module.automate.setup_policy
+  ]
 }
 
 # Set up IAM profile to provide access to s3 bucket from virtual nodes.

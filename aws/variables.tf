@@ -95,3 +95,9 @@ variable "create_macos_nodes" {
   description = "Whether to create a macos node and connect it to the server"
   default = false
 }
+
+variable "chef_repo_name" {
+  type = string
+  description = "Name of the local chef repo"
+  default = "cdqs-chef-repo"
+}
