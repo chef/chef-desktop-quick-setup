@@ -16,7 +16,4 @@ Set-Location C:\Users\$env:USERNAME\.chef\cookbooks\desktop-config-lite
 chef update
 chef push ${policy_name} 'Policyfile.rb'
 
-Write-Host "Uploading cookbook.."
-knife cookbook upload desktop-config-lite --cookbook-path C:\Users\$env:USERNAME\.chef\cookbooks
-
 Remove-Item ${knife_profile}
