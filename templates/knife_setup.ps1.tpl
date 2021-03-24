@@ -14,6 +14,6 @@ powershell -ExecutionPolicy Bypass -File ${cookbook_setup_script}
 Write-Host "Setting up policy.."
 Set-Location C:\Users\$env:USERNAME\.chef\cookbooks\desktop-config-lite
 chef update
-chef push ${policy_name} 'Policyfile.rb'
+chef push ${policy_group_name} 'Policyfile.rb'
 
 Remove-Item ${knife_profile}

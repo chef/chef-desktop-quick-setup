@@ -21,6 +21,9 @@ resource "null_resource" "windows_node_setup" {
   provisioner "chef" {
     client_options  = ["chef_license 'accept'"]
     run_list        = ["desktop-config-lite::default"]
+    use_policyfile  = true
+    policy_group    = var.policy_group_name
+    policy_name     = var.policy_name
     node_name       = "windowsnode-${count.index}"
     server_url      = var.chef_server_url
     user_name       = var.client_name

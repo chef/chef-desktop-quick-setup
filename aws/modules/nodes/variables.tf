@@ -118,3 +118,15 @@ variable "private_key_path" {
   description = "Private key path"
   default     = "../keys/aws_terraform"
 }
+
+variable "policy_group_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy-group"
+}
+
+variable "policy_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy"
+}

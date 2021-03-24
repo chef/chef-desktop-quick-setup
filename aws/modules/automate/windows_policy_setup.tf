@@ -25,7 +25,7 @@ resource "local_file" "knife_setup_script" {
   count = local.isMacOS ? 0 : 1
   content = templatefile("${path.root}/../templates/knife_setup.ps1.tpl", {
       knife_profile_name = var.knife_profile_name
-      policy_name = var.policy_name
+      policy_group_name = var.policy_group_name
       knife_profile = abspath(local_file.knife_profile.filename)
       cookbook_setup_script = abspath("${path.root}/../scripts/chef_setup.ps1")
     })

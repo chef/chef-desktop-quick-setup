@@ -1,4 +1,3 @@
-
 # Transfer certificates from the server to local directory. All keys can be found in PROJECT_ROOT/keys
 resource "null_resource" "extract_certs_windows" {
   # Runs only on Windows.
@@ -48,7 +47,6 @@ resource "null_resource" "extract_certs_macos" {
     })
   }
 }
-
 
 # Create a knife profile and add it to ~/.chef/credentials
 resource "local_file" "knife_profile" {

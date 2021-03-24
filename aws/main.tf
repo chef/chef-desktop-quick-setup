@@ -36,6 +36,7 @@ module "automate" {
     aws_route_table_association.subnet_association,
   ]
   knife_profile_name = var.knife_profile_name
+  policy_group_name  = var.policy_group_name
   policy_name        = var.policy_name
 }
 
@@ -93,6 +94,8 @@ module "nodes" {
   munki_repo_bucket_url     = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository"
   macdhost_id               = var.macdhost_id
   create_macos_nodes        = var.create_macos_nodes
+  policy_group_name         = var.policy_group_name
+  policy_name               = var.policy_name
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.

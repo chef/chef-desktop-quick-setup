@@ -67,6 +67,12 @@ variable "knife_profile_name" {
   default = "cdqs-profile"
 }
 
+variable "policy_group_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy-group"
+}
+
 variable "policy_name" {
   type = string
   description = "Name of the policy to create on server"
