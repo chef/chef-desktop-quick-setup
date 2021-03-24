@@ -11,6 +11,11 @@ provider "aws" {
   region = var.resource_location
 }
 
+locals {
+  fullPathToModule = abspath("${path.module}/main.tf")
+  isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
+}
+
 resource "aws_instance" "automate" {
   ami = var.ami_id
   # 4vCPUs, 16GB RAM - Based on minimum requirements for Automate server.
