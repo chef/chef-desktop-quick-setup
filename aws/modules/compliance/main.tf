@@ -1,3 +1,12 @@
+/*
+This module is responsible for setting up compliance configuration:
+- Create an inspec profile inside the demo chef repo stored in .cache
+- Create API token for compliance uploads and reporting.
+- Authenticate user and upload profile to the server.
+- Install audit cookbook and update the run list.
+- Update node configurations (see update_windows_nodes.tf)
+*/
+
 locals {
   # Read all controls from files/compliance-controls
   all_controls = fileset("${path.root}/../files/compliance-controls", "**/*")
@@ -17,11 +26,22 @@ resource "null_resource" "create_inspec_profile_macos" {
     var.compliance_depends_on,
     local_file.inspec_yaml
   ]
+
+  triggers = {
+    inspec_profile_name = var.inspec_profile_name
+    chef_repo_name = var.chef_repo_name
+  }
+
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/compliance/create_inspec_profile.tpl", {
       inspec_profile_name = var.inspec_profile_name
       repo_path           = abspath("${path.root}/../.cache/${var.chef_repo_name}")
     })
+  }
+  # Remove inspec profile from cache.
+  provisioner "local-exec" {
+    when = destroy
+    command = "rm -rf ${abspath("${path.root}/../.cache/${self.triggers.chef_repo_name}/${self.triggers.inspec_profile_name}")}"
   }
 }
 
@@ -79,6 +99,11 @@ resource "null_resource" "push_inspec_profile" {
       repo_path = abspath("${path.root}/../.cache/${var.chef_repo_name}")
     })
   }
+  # TODO: Should we try to remove the profile on destroy?
+  # If we don't, while the command would error next time but won't stop the entire script from running.
+  # So it would work fine. Otherwise, we have two solutions:
+  # - Remove the profile via automate API (would require version as well)
+  # - Always use overwrite flag on compliance upload.
 }
 
 # Create default attributes file for audit cookbook.
@@ -95,12 +120,28 @@ resource "null_resource" "update_chef_repo" {
     local_file.audit_attributes,
     null_resource.push_inspec_profile,
   ]
+
+  triggers = {
+    chef_repo_name    = var.chef_repo_name
+    policy_group_name = var.policy_group_name
+  }
+
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/compliance/update_chef_repo.tpl", {
       default_attributes_file = abspath(local_file.audit_attributes.filename)
       cache_path        = abspath("${path.root}/../.cache")
       chef_repo_name    = var.chef_repo_name
       policy_group_name = var.policy_group_name
+    })
+  }
+
+  # Remove audit cookbook, update policyfile and push policy to server.
+  provisioner "local-exec" {
+    when = destroy
+    command = templatefile("${path.root}/../templates/compliance/remove_audit_cookbook.tpl", {
+      cache_path        = abspath("${path.root}/../.cache")
+      chef_repo_name    = self.triggers.chef_repo_name
+      policy_group_name = self.triggers.policy_group_name
     })
   }
 }

@@ -7,3 +7,8 @@ output "windows_node_eips" {
   value = aws_eip.node_eip
   description = "Elastic IPs for windows nodes"
 }
+
+output "windows_node_setup" {
+  value = null_resource.windows_node_setup
+  description = "Chef client setup for windows node"
+}

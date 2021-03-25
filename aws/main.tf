@@ -56,6 +56,7 @@ module "compliance" {
   ]
   windows_nodes      = module.nodes.windows_nodes
   windows_node_eips  = module.nodes.windows_node_eips
+  windows_node_setup = module.nodes.windows_node_setup
   admin_password     = var.admin_password_win_node
 }
 

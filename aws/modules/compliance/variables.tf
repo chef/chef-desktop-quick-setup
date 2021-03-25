@@ -58,6 +58,12 @@ variable "windows_node_eips" {
   default     = []
 }
 
+variable "windows_node_setup" {
+  type = any
+  description = "Initial chef client setup of windows nodes"
+  default =  []
+}
+
 variable "admin_password" {
   type        = string
   description = "Administrator password for windows nodes"
