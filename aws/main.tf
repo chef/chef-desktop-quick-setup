@@ -54,6 +54,9 @@ module "compliance" {
     module.automate.automate_server_setup,
     module.automate.setup_policy
   ]
+  windows_nodes      = module.nodes.windows_nodes
+  windows_node_eips  = module.nodes.windows_node_eips
+  admin_password     = var.admin_password_win_node
 }
 
 # Set up IAM profile to provide access to s3 bucket from virtual nodes.

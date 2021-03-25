@@ -45,3 +45,20 @@ variable "compliance_depends_on" {
  type = any
  description = "Dependency on automate server setup" 
 }
+
+variable "windows_nodes" {
+  type        = any
+  description = "Windows nodes to configure with Gorilla client"
+  default     = []
+}
+
+variable "windows_node_eips" {
+  type        = any
+  description = "Elastic IPs for windows nodes for winrm connection."
+  default     = []
+}
+
+variable "admin_password" {
+  type        = string
+  description = "Administrator password for windows nodes"
+}
