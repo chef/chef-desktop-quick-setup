@@ -85,11 +85,38 @@ resource "null_resource" "create_compliance_token" {
   }
 }
 
+/*
+Since adding this destroy provisioner to create_compliance_token resource forces
+us to move the connection block inside its remote executioners, we separate it
+from the resource and add this new resource as an explicit dependency to the next
+resource execution in the order, null_resource.push_inspec_profile, thus making
+sure that this resource is created whenever a profile is pushed with a newly created
+token. Whenever the module is destroyed, this resource will also be destroyed with
+it, thus running the destroy time provisioner which removes the api token from the
+server.
+*/
+resource "null_resource" "delete_compliance_token" {
+  depends_on = [
+    null_resource.create_compliance_token,
+  ]
+
+  triggers = {
+    api_url = "https://${var.automate_server_url}/apis/iam/v2/tokens/compliance-token"
+    token_file = abspath("${path.root}/../keys")
+  }
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "curl -s -H \"api-token: $(cat ${self.triggers.token_file}/compliance-token)\" -H \"Connection: close\" -X \"DELETE\" ${self.triggers.api_url} --insecure"
+  }
+}
+
 # Push inspec profile to automate server
 resource "null_resource" "push_inspec_profile" {
   depends_on = [
     null_resource.copy_controls_macos,
     null_resource.create_compliance_token,
+    null_resource.delete_compliance_token
   ]
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/compliance/push_inspec_profile.tpl", {
