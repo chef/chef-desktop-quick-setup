@@ -1,7 +1,7 @@
 echo "Setting up audit cookbook inside ${chef_repo_name}"
 cd ${cache_path}/${chef_repo_name}
 knife supermarket install audit --cookbook-path ./cookbooks
-cp -f ${default_attributes_file} ./cookbook/audit/attributes/default.rb
+cp -f ${default_attributes_file} ./cookbooks/audit/attributes/default.rb
 
 echo "Updating policyfile.."
 sed -i '' "/run_list 'desktop-config-lite::default'/ s/$/ ,'audit::default'/" Policyfile.rb
