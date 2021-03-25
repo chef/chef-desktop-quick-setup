@@ -53,7 +53,7 @@ variable "key_name" {
 variable "windows_node_count" {
   type        = number
   description = "Number of windows nodes"
-  default     = 2
+  default     = 1
 }
 
 variable "macos_node_count" {
