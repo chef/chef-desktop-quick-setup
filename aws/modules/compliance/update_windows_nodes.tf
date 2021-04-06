@@ -12,7 +12,7 @@ on the same node, which might result in failure.
 # Read API token for compliance reporting.
 data "local_file" "api_token" {
   depends_on = [
-    null_resource.create_compliance_token
+    null_resource.fetch_compliance_token
   ]
   filename = abspath("${path.root}/../keys/compliance-token")
 }

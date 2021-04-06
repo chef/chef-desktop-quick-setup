@@ -8,6 +8,8 @@ This module is responsible for setting up compliance configuration:
 */
 
 locals {
+  fullPathToModule = abspath("${path.module}/main.tf")
+  isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
   # Read all controls from files/compliance-controls
   all_controls = fileset("${path.root}/../files/compliance-controls", "**/*")
 }
@@ -21,34 +23,39 @@ resource "local_file" "inspec_yaml" {
 }
 
 # Generate inspec profile and overwrite inspec.yml contents
-resource "null_resource" "create_inspec_profile_macos" {
+resource "null_resource" "create_inspec_profile" {
   depends_on = [
     var.compliance_depends_on,
     local_file.inspec_yaml
   ]
 
-  triggers = {
-    inspec_profile_name = var.inspec_profile_name
-    chef_repo_name = var.chef_repo_name
-  }
-
   provisioner "local-exec" {
-    command = templatefile("${path.root}/../templates/compliance/create_inspec_profile.tpl", {
+    command = templatefile("${path.root}/../templates/compliance/create_inspec_profile${local.isMacOS ? "" : ".ps1"}.tpl", {
       inspec_profile_name = var.inspec_profile_name
       repo_path           = abspath("${path.root}/../.cache/${var.chef_repo_name}")
     })
+    interpreter = local.isMacOS ? null : ["Powershell", "-Command"]
+  }
+}
+
+resource "null_resource" "delete_inspec_profile" {
+  depends_on = [null_resource.create_inspec_profile]
+  triggers = {
+    inspec_profile_name = var.inspec_profile_name
+    chef_repo_name = var.chef_repo_name
+    isMacos = local.isMacOS
   }
   # Remove inspec profile from cache.
   provisioner "local-exec" {
     when = destroy
-    command = "rm -rf ${abspath("${path.root}/../.cache/${self.triggers.chef_repo_name}/${self.triggers.inspec_profile_name}")}"
+    command = "${self.triggers.isMacOS ? "rm -rf": "rd /s /q"} ${abspath("${path.root}/../.cache/${self.triggers.chef_repo_name}/${self.triggers.inspec_profile_name}")}"
   }
 }
 
 # Copy all controls to inspec profile
-resource "null_resource" "copy_controls_macos" {
+resource "null_resource" "copy_controls" {
   depends_on = [
-    null_resource.create_inspec_profile_macos
+    null_resource.create_inspec_profile
   ]
   for_each = local.all_controls
   triggers = {
@@ -56,7 +63,8 @@ resource "null_resource" "copy_controls_macos" {
     target_path = abspath("${path.root}/../.cache/${var.chef_repo_name}/${var.inspec_profile_name}/controls/${each.value}")
   }
   provisioner "local-exec" {
-    command = "cp ${self.triggers.source_path} ${self.triggers.target_path}"
+    command = "${local.isMacOS ? "cp" : "copy"} ${self.triggers.source_path} ${self.triggers.target_path}"
+    interpreter = local.isMacOS ? null : ["Powershell", "-Command"]
   }
 }
 
@@ -75,15 +83,33 @@ resource "null_resource" "create_compliance_token" {
   provisioner "remote-exec" {
     inline = ["sudo chef-automate iam token create compliance-token --admin > ~/compliance-token"]
   }
+}
+
+resource "null_resource" "fetch_compliance_token" {
+  depends_on = [
+    null_resource.create_compliance_token
+  ]
 
   provisioner "local-exec" {
-    command = "ssh -i \"${path.root}/${var.private_key_path}\" ${var.admin_username}@${var.automate_server_public_ip} \"cat ~/compliance-token\" > ${path.root}/../keys/compliance-token"
-  }
-
-  provisioner "remote-exec" {
-    inline = ["rm -f ~/compliance-token"]
+    command = "${local.isMacOS ? "ssh -i \"${path.root}/${var.private_key_path}\"" : "plink -i ${path.root}/${var.private_ppk_key_path} -ssh"} ${var.admin_username}@${var.automate_server_public_ip} ${local.isMacOS ? "\"sudo cat ~/compliance-token\"" : "sudo cat ~/compliance-token"} > ${path.root}/../keys/compliance-token"
   }
 }
+
+# resource "null_resource" "clear_tokenfile_from_remote" {
+#   depends_on = [
+#     null_resource.fetch_compliance_token
+#   ]
+#   connection {
+#     type        = "ssh"
+#     user        = var.admin_username
+#     host        = var.automate_server_url
+#     private_key = file("${path.root}/${var.private_key_path}")
+#   }
+
+#   provisioner "remote-exec" {
+#     inline = ["rm -f ~/compliance-token"]
+#   }
+# }
 
 /*
 Since adding this destroy provisioner to create_compliance_token resource forces
@@ -101,21 +127,24 @@ resource "null_resource" "delete_compliance_token" {
   ]
 
   triggers = {
-    api_url = "https://${var.automate_server_url}/apis/iam/v2/tokens/compliance-token"
-    token_file = abspath("${path.root}/../keys")
+    isMacOS = local.isMacOS
+    powershellCommand = "Invoke-WebRequest -Uri \"${var.automate_server_url}/apis/iam/v2/tokens/compliance-token\" -Method DELETE -DisableKeepAlive -Headers @{\"api-token\"=$(Get-Content ${abspath("${path.root}/../keys")}/compliance-token | Select-Object -First 1)}"
+    bashCommand = "curl -s -H \"api-token: $(cat ${abspath("${path.root}/../keys")}/compliance-token)\" -H \"Connection: close\" -X \"DELETE\" https://${var.automate_server_url}/apis/iam/v2/tokens/compliance-token --insecure"
   }
 
   provisioner "local-exec" {
     when = destroy
-    command = "curl -s -H \"api-token: $(cat ${self.triggers.token_file}/compliance-token)\" -H \"Connection: close\" -X \"DELETE\" ${self.triggers.api_url} --insecure"
+    # command = self.triggers.isMacOS ? self.triggers.bashCommand : self.triggers.powershellCommand
+    command = self.triggers.isMacOS ? self.triggers.bashCommand : "Write-Host \"Skipped compliance token deletion..\""
+    interpreter = self.triggers.isMacOS ? null : ["Powershell", "-Command"]
   }
 }
 
 # Push inspec profile to automate server
 resource "null_resource" "push_inspec_profile" {
   depends_on = [
-    null_resource.copy_controls_macos,
-    null_resource.create_compliance_token,
+    null_resource.copy_controls,
+    null_resource.fetch_compliance_token,
     null_resource.delete_compliance_token
   ]
   provisioner "local-exec" {
@@ -125,6 +154,7 @@ resource "null_resource" "push_inspec_profile" {
       automate_server_url = "https://${var.automate_server_url}"
       repo_path = abspath("${path.root}/../.cache/${var.chef_repo_name}")
     })
+    interpreter = local.isMacOS ? null : ["Powershell", "-Command"]
   }
   # TODO: Should we try to remove the profile on destroy?
   # If we don't, while the command would error next time but won't stop the entire script from running.
@@ -151,24 +181,28 @@ resource "null_resource" "update_chef_repo" {
   triggers = {
     chef_repo_name    = var.chef_repo_name
     policy_group_name = var.policy_group_name
+    fileExtension = local.isMacOS ? "" : ".ps1"
+    isMacOS = local.isMacOS
   }
 
   provisioner "local-exec" {
-    command = templatefile("${path.root}/../templates/compliance/update_chef_repo.tpl", {
+    command = templatefile("${path.root}/../templates/compliance/update_chef_repo${self.triggers.fileExtension}.tpl", {
       default_attributes_file = abspath(local_file.audit_attributes.filename)
       cache_path        = abspath("${path.root}/../.cache")
       chef_repo_name    = var.chef_repo_name
       policy_group_name = var.policy_group_name
     })
+    interpreter = self.triggers.isMacOS ? null : ["Powershell", "-Command"]
   }
 
   # Remove audit cookbook, update policyfile and push policy to server.
   provisioner "local-exec" {
     when = destroy
-    command = templatefile("${path.root}/../templates/compliance/remove_audit_cookbook.tpl", {
+    command = templatefile("${path.root}/../templates/compliance/remove_audit_cookbook${self.triggers.fileExtension}.tpl", {
       cache_path        = abspath("${path.root}/../.cache")
       chef_repo_name    = self.triggers.chef_repo_name
       policy_group_name = self.triggers.policy_group_name
     })
+    interpreter = self.triggers.isMacOS ? null : ["Powershell", "-Command"]
   }
 }

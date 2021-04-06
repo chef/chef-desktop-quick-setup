@@ -42,3 +42,14 @@ resource "aws_eip" "eip" {
   instance = aws_instance.automate.id
   vpc      = true
 }
+
+# Create a knife profile and add it to ~/.chef/credentials
+resource "local_file" "knife_profile" {
+  content = templatefile("${path.root}/../templates/knife_profile.tpl", {
+    knife_profile_name = var.knife_profile_name
+    client_name = var.automate_credentials.user_name
+    automate_client_key_file = "${abspath(path.root)}/../keys/${var.automate_credentials.user_name}.pem"
+    chef_server_url = "https://${aws_eip.eip.public_dns}/organizations/${var.automate_credentials.org_name}"
+  })
+  filename = "${path.root}/../.cache/knife_profile"
+}
