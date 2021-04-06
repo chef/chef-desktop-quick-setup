@@ -1,5 +1,8 @@
 # Generate bash script for setting up chef repo
 resource "local_file" "chef_repo_setup_script" {
+  # Runs only on macOS
+  count = local.isMacOS ? 1 : 0
+
   content = templatefile("${path.root}/../templates/chef_repo_setup_script.tpl", {
     cache_path        = abspath("${path.root}/../.cache")
     chef_repo_name    = var.chef_repo_name
@@ -17,7 +20,7 @@ resource "null_resource" "setup_policy_macos" {
   # Keep knife profile name as trigger since we want to access it inside the provisioner for this null resource.
   triggers = {
     knife_profile_name     = var.knife_profile_name
-    chef_repo_setup_script = local_file.chef_repo_setup_script.filename
+    chef_repo_setup_script = local_file.chef_repo_setup_script[count.index].filename
     chef_repo_name         = var.chef_repo_name
   }
 

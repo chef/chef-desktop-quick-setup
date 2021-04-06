@@ -1,6 +1,4 @@
 Write-Host "Restoring local cofiguration.."
-# Remove the desktop-config-lite cookbook from local.
-Remove-Item C:\Users\$env:USERNAME\.chef\cookbooks\desktop-config-lite -Recurse -Force
 <#
 The following commands remove the added profile from credentials file by
 finding a match using profile name. Then we select 4 lines including
