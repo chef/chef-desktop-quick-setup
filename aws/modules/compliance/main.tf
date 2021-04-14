@@ -29,6 +29,12 @@ resource "null_resource" "create_inspec_profile" {
     local_file.inspec_yaml
   ]
 
+  triggers = {
+    inspec_profile_name = var.inspec_profile_name
+    chef_repo_name = var.chef_repo_name
+    isMacOS = local.isMacOS
+  }
+
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/compliance/create_inspec_profile${local.isMacOS ? "" : ".ps1"}.tpl", {
       inspec_profile_name = var.inspec_profile_name
@@ -36,16 +42,7 @@ resource "null_resource" "create_inspec_profile" {
     })
     interpreter = local.isMacOS ? null : ["Powershell", "-Command"]
   }
-}
 
-resource "null_resource" "delete_inspec_profile" {
-  depends_on = [null_resource.create_inspec_profile]
-  triggers = {
-    inspec_profile_name = var.inspec_profile_name
-    chef_repo_name = var.chef_repo_name
-    isMacos = local.isMacOS
-  }
-  # Remove inspec profile from cache.
   provisioner "local-exec" {
     when = destroy
     command = "${self.triggers.isMacOS ? "rm -rf": "rd /s /q"} ${abspath("${path.root}/../.cache/${self.triggers.chef_repo_name}/${self.triggers.inspec_profile_name}")}"
@@ -95,21 +92,21 @@ resource "null_resource" "fetch_compliance_token" {
   }
 }
 
-# resource "null_resource" "clear_tokenfile_from_remote" {
-#   depends_on = [
-#     null_resource.fetch_compliance_token
-#   ]
-#   connection {
-#     type        = "ssh"
-#     user        = var.admin_username
-#     host        = var.automate_server_url
-#     private_key = file("${path.root}/${var.private_key_path}")
-#   }
+resource "null_resource" "clear_tokenfile_from_remote" {
+  depends_on = [
+    null_resource.fetch_compliance_token
+  ]
+  connection {
+    type        = "ssh"
+    user        = var.admin_username
+    host        = var.automate_server_url
+    private_key = file("${path.root}/${var.private_key_path}")
+  }
 
-#   provisioner "remote-exec" {
-#     inline = ["rm -f ~/compliance-token"]
-#   }
-# }
+  provisioner "remote-exec" {
+    inline = ["rm -f ~/compliance-token"]
+  }
+}
 
 /*
 Since adding this destroy provisioner to create_compliance_token resource forces
@@ -128,15 +125,15 @@ resource "null_resource" "delete_compliance_token" {
 
   triggers = {
     isMacOS = local.isMacOS
-    powershellCommand = "Invoke-WebRequest -Uri \"${var.automate_server_url}/apis/iam/v2/tokens/compliance-token\" -Method DELETE -DisableKeepAlive -Headers @{\"api-token\"=$(Get-Content ${abspath("${path.root}/../keys")}/compliance-token | Select-Object -First 1)}"
+    powershellCommand = "Invoke-WebRequest -SkipCertificateCheck -Uri \"https://${var.automate_server_public_ip}/apis/iam/v2/tokens/compliance-token\" -Method DELETE -DisableKeepAlive -Headers @{\"api-token\"=$(Get-Content ${abspath("${path.root}/../keys")}/compliance-token | Select-Object -First 1)}"
     bashCommand = "curl -s -H \"api-token: $(cat ${abspath("${path.root}/../keys")}/compliance-token)\" -H \"Connection: close\" -X \"DELETE\" https://${var.automate_server_url}/apis/iam/v2/tokens/compliance-token --insecure"
   }
 
   provisioner "local-exec" {
     when = destroy
-    # command = self.triggers.isMacOS ? self.triggers.bashCommand : self.triggers.powershellCommand
-    command = self.triggers.isMacOS ? self.triggers.bashCommand : "Write-Host \"Skipped compliance token deletion..\""
-    interpreter = self.triggers.isMacOS ? null : ["Powershell", "-Command"]
+    command = self.triggers.isMacOS ? self.triggers.bashCommand : self.triggers.powershellCommand
+    # command = self.triggers.isMacOS ? self.triggers.bashCommand : "Write-Host \"Skipped compliance token deletion..\""
+    interpreter = self.triggers.isMacOS ? null : ["pwsh.exe", "-Command"]
   }
 }
 
