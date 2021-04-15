@@ -1,6 +1,11 @@
 
 # Set up gorilla client by creating the gorilla config file on the node, then copy the gorilla client and run it to install packages mentioned in the catalog.
 resource "null_resource" "gorilla_setup" {
+  depends_on = [
+    aws_s3_bucket_object.upload_repository_content,
+    aws_s3_bucket_object.upload_gorilla_binary
+  ]
+
   count      = length(var.windows_nodes)
 
   triggers = {
