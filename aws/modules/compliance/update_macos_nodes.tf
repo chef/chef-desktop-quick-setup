@@ -62,7 +62,7 @@ resource "null_resource" "update_macos_nodes" {
       host        = var.macos_node_eips[count.index].public_dns
       private_key = file("${path.root}/${var.private_key_path}")
     }
-    inline = ["/bin/bash ~/configure_data_collector.sh", "rm ~/configure_data_collector.sh"]
+    inline = [ "/bin/bash ~/configure_data_collector.sh", "rm ~/configure_data_collector.sh"]
   }
 
   # Remove data collector configuration on destroy and run chef-client before exiting.
