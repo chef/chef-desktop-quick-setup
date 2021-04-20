@@ -23,7 +23,7 @@ becomes quite cumbersome and in some cases it is near impossible.
 Simplest alternative is to provision a powershell script, run it and then
 remove it from the instance once it completes execution.
 */
-resource "null_resource" "update_windows_nodes" {
+resource "null_resource" "update_macos_nodes" {
   depends_on = [
     null_resource.update_chef_repo
   ]
@@ -31,73 +31,60 @@ resource "null_resource" "update_windows_nodes" {
   # depends on the node setup than the node/instance creation, which is a different action.
   # We would want to wait for the initial setup otherwise the two resources will
   # execute in parellel, resulting in a race condition which will result in an error.
-  count      = length(var.windows_node_setup)
+  count = length(var.macos_node_eips)
 
   triggers = {
-    node_id = "${var.windows_nodes[count.index].id}"
-    admin_password = var.admin_password
-    server_dns = var.windows_node_eips[count.index].public_dns
+    node_id    = "${var.macos_node_eips[count.index].id}"
+    server_dns = var.macos_node_eips[count.index].public_dns
+    private_key = file("${path.root}/${var.private_key_path}")
   }
+
 
   # Configure data_collector url and token, then perform chef-client run.
   provisioner "file" {
     connection {
-      type     = "winrm"
-      host     = var.windows_node_eips[count.index].public_dns
-      port     = "5985"
-      user     = "Administrator"
-      password = var.admin_password
-      timeout  = "15m"
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = var.macos_node_eips[count.index].public_dns
+      private_key = file("${path.root}/${var.private_key_path}")
     }
-    content = templatefile("${path.root}/../templates/compliance/configure_data_collector.ps1.tpl", {
+    content = templatefile("${path.root}/../templates/compliance/configure_data_collector.sh.tpl", {
       automate_server_url = var.automate_server_url
-      api_token = chomp(data.local_file.api_token.content)
+      api_token           = chomp(data.local_file.api_token.content)
     })
-    destination = "C:\\chef\\configure_data_collector.ps1"
+    destination = "~/configure_data_collector.sh"
   }
 
   provisioner "remote-exec" {
     connection {
-      type     = "winrm"
-      host     = var.windows_node_eips[count.index].public_dns
-      port     = "5985"
-      user     = "Administrator"
-      password = var.admin_password
-      timeout  = "15m"
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = var.macos_node_eips[count.index].public_dns
+      private_key = file("${path.root}/${var.private_key_path}")
     }
-    inline = [
-      "powershell -ExecutionPolicy Bypass -File C:\\chef\\configure_data_collector.ps1",
-      "powershell Remove-Item -Path C:\\chef\\configure_data_collector.ps1"
-    ]
+    inline = ["/bin/bash ~/configure_data_collector.sh", "rm ~/configure_data_collector.sh"]
   }
 
   # Remove data collector configuration on destroy and run chef-client before exiting.
   provisioner "file" {
     when = destroy
     connection {
-      type     = "winrm"
-      host     = self.triggers.server_dns
-      port     = "5985"
-      user     = "Administrator"
-      password = self.triggers.admin_password
-      timeout  = "15m"
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = self.triggers.server_dns
+      private_key = self.triggers.private_key
     }
-    content = file("${path.root}/../templates/compliance/remove_data_collector_configuration.ps1.tpl")
-    destination = "C:\\chef\\remove_data_collector_configuration.ps1"
+    content     = file("${path.root}/../templates/compliance/remove_data_collector_configuration.sh.tpl")
+    destination = "~/remove_data_collector_configuration.sh"
   }
   provisioner "remote-exec" {
     when = destroy
     connection {
-      type     = "winrm"
-      host     = self.triggers.server_dns
-      port     = "5985"
-      user     = "Administrator"
-      password = self.triggers.admin_password
-      timeout  = "15m"
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = self.triggers.server_dns
+      private_key = self.triggers.private_key
     }
-    inline = [
-      "powershell -ExecutionPolicy Bypass -File C:\\chef\\remove_data_collector_configuration.ps1",
-      "powershell Remove-Item -Path C:\\chef\\remove_data_collector_configuration.ps1"
-    ]
+    inline = ["/bin/bash ~/remove_data_collector_configuration.sh", "rm ~/remove_data_collector_configuration.sh"]
   }
 }

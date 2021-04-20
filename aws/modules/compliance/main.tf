@@ -203,3 +203,11 @@ resource "null_resource" "update_chef_repo" {
     interpreter = self.triggers.isMacOS ? null : ["Powershell", "-Command"]
   }
 }
+
+# Read API token for compliance reporting.
+data "local_file" "api_token" {
+  depends_on = [
+    null_resource.fetch_compliance_token
+  ]
+  filename = abspath("${path.root}/../keys/compliance-token")
+}

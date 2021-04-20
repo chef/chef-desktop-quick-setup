@@ -20,7 +20,7 @@ resource "null_resource" "windows_node_setup" {
   # Currently, this is marked deprecated but works fine.
   provisioner "chef" {
     client_options  = ["chef_license 'accept'"]
-    run_list        = ["desktop-config-lite::default"]
+    run_list        = ["desktop-config::default"]
     use_policyfile  = true
     policy_group    = var.policy_group_name
     policy_name     = var.policy_name

@@ -58,6 +58,12 @@ variable "windows_node_eips" {
   default     = []
 }
 
+variable "macos_node_eips" {
+  type        = any
+  description = "Elastic IPs for macos nodes for ssh connection."
+  default     = []
+}
+
 variable "windows_node_setup" {
   type = any
   description = "Initial chef client setup of windows nodes"

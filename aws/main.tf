@@ -56,6 +56,7 @@ module "compliance" {
   ]
   windows_nodes      = module.nodes.windows_nodes
   windows_node_eips  = module.nodes.windows_node_eips
+  macos_node_eips    = module.nodes.macos_node_eips
   windows_node_setup = module.nodes.windows_node_setup
   admin_password     = var.admin_password_win_node
 }
@@ -67,9 +68,12 @@ module "iam" {
 
 # Module for creating the munki repo and pushing to s3 bucket.
 module "munki" {
-  source            = "./modules/munki"
-  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
-  resource_location = var.resource_location
+  source             = "./modules/munki"
+  bucket             = aws_s3_bucket.cdqs_app_mgmt.bucket
+  bucket_domain_name = aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name
+  resource_location  = var.resource_location
+  macos_node_eips    = module.nodes.macos_node_eips
+  private_key_path   = var.private_key_path
 }
 
 # Module for creating the gorilla repo and pushing to s3 bucket.

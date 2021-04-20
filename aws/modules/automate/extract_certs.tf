@@ -3,8 +3,12 @@ resource "null_resource" "extract_certs_windows" {
   # Runs only on Windows.
   count = local.isMacOS ? 0 : 1
 
+  depends_on = [
+    null_resource.automate_server_setup
+  ]
+
   triggers = {
-    trigger = null_resource.automate_server_setup.id
+    trigger = join(":", [null_resource.automate_server_setup.id, aws_instance.automate.id])
   }
 
   # The commands are split into multiple local executioners because passing multiple commands as we would for bash doesn't work here.
@@ -32,18 +36,23 @@ resource "null_resource" "extract_certs_macos" {
   # Runs only on macOS
   count = local.isMacOS ? 1 : 0
 
+
+  depends_on = [
+    null_resource.automate_server_setup
+  ]
+
   triggers = {
-    trigger = null_resource.automate_server_setup.id
+    trigger = join(":", [null_resource.automate_server_setup.id, aws_instance.automate.id])
   }
 
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/extract_certs.sh.tpl", {
-      user_name = var.admin_username
-      ssh_key = "${path.root}/${var.private_key_path}"
-      server_ip = aws_eip.eip.public_ip
-      client_name = var.automate_credentials.user_name
+      user_name      = var.admin_username
+      ssh_key        = "${path.root}/${var.private_key_path}"
+      server_ip      = aws_eip.eip.public_ip
+      client_name    = var.automate_credentials.user_name
       validator_path = var.automate_credentials.validator_path
-      local_path = "${path.root}/../keys"
+      local_path     = "${path.root}/../keys"
     })
   }
 }

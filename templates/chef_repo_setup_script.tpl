@@ -13,6 +13,15 @@ include_recipe 'desktop-config-lite::macos' if macos?
 include_recipe 'desktop-config-lite::windows' if windows?
 EOF
 
+# Remove lines that introduce a bug on chef-client run for when desktop-config-lite is in run_list
+# and remove files that are not required.
+rm cookbooks/desktop-config-lite/recipes/mac.yml
+rm cookbooks/desktop-config-lite/resources/mac_desktop_screensaver.rb
+sed -i '' '/require_password/d' cookbooks/desktop-config-lite/recipes/macos.yml
+sed -i '' '/delay_before_password_prompt/d' cookbooks/desktop-config-lite/recipes/macos.yml
+sed -i '' '/action/d' cookbooks/desktop-config-lite/recipes/macos.yml
+git add . && git commit -m "cleanup code"
+
 # Set up policy
 echo "name '${policy_name}'" > Policyfile.rb
 cat <<-EOF >> Policyfile.rb
