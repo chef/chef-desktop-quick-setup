@@ -3,6 +3,10 @@ output "automate_server_url" {
   value = aws_eip.eip.public_dns
 }
 
+output "automate_server_public_ip" {
+  value = aws_eip.eip.public_ip
+}
+
 output "automate_server_setup" {
   value = null_resource.automate_server_setup
 }

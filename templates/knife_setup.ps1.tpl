@@ -8,15 +8,3 @@ Add-Content -Path $CredentialsFilePath -Value $KnifeProfileContent
 
 knife config use-profile ${knife_profile_name}
 knife ssl fetch
-
-powershell -ExecutionPolicy Bypass -File ${cookbook_setup_script}
-
-Write-Host "Setting up policy.."
-Set-Location C:\Users\$env:USERNAME\.chef\cookbooks\desktop-config-lite
-chef update
-chef push ${policy_name} 'Policyfile.rb'
-
-Write-Host "Uploading cookbook.."
-knife cookbook upload desktop-config-lite --cookbook-path C:\Users\$env:USERNAME\.chef\cookbooks
-
-Remove-Item ${knife_profile}

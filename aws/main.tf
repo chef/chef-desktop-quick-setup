@@ -36,7 +36,29 @@ module "automate" {
     aws_route_table_association.subnet_association,
   ]
   knife_profile_name = var.knife_profile_name
+  policy_group_name  = var.policy_group_name
   policy_name        = var.policy_name
+  chef_repo_name     = var.chef_repo_name
+}
+
+module "compliance" {
+  source                    = "./modules/compliance"
+  automate_server_url       = module.automate.automate_server_url
+  automate_server_public_ip = module.automate.automate_server_public_ip
+  admin_username            = var.admin_username
+  private_key_path          = var.private_key_path
+  private_ppk_key_path      = var.private_ppk_key_path
+  chef_repo_name            = var.chef_repo_name
+  policy_group_name         = var.policy_group_name
+  compliance_depends_on = [
+    module.automate.automate_server_setup,
+    module.automate.setup_policy
+  ]
+  windows_nodes      = module.nodes.windows_nodes
+  windows_node_eips  = module.nodes.windows_node_eips
+  macos_node_eips    = module.nodes.macos_node_eips
+  windows_node_setup = module.nodes.windows_node_setup
+  admin_password     = var.admin_password_win_node
 }
 
 # Set up IAM profile to provide access to s3 bucket from virtual nodes.
@@ -46,9 +68,12 @@ module "iam" {
 
 # Module for creating the munki repo and pushing to s3 bucket.
 module "munki" {
-  source            = "./modules/munki"
-  bucket            = aws_s3_bucket.cdqs_app_mgmt.bucket
-  resource_location = var.resource_location
+  source             = "./modules/munki"
+  bucket             = aws_s3_bucket.cdqs_app_mgmt.bucket
+  bucket_domain_name = aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name
+  resource_location  = var.resource_location
+  macos_node_eips    = module.nodes.macos_node_eips
+  private_key_path   = var.private_key_path
 }
 
 # Module for creating the gorilla repo and pushing to s3 bucket.
@@ -93,6 +118,8 @@ module "nodes" {
   munki_repo_bucket_url     = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository"
   macdhost_id               = var.macdhost_id
   create_macos_nodes        = var.create_macos_nodes
+  policy_group_name         = var.policy_group_name
+  policy_name               = var.policy_name
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.

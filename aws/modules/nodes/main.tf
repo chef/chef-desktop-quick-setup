@@ -71,7 +71,7 @@ resource "aws_instance" "macos_node" {
   ]
   subnet_id  = var.subnet_id
   key_name   = var.key_name
-  depends_on = [var.node_depends_on]
+  depends_on = [var.node_depends_on, var.node_setup_depends_on]
   # Attach instance profile for s3 bucket access.
   iam_instance_profile = var.iam_instance_profile_name
 
@@ -81,8 +81,9 @@ resource "aws_instance" "macos_node" {
   user_data = templatefile("${path.root}/../templates/macos.setup.tpl", {
     chef_server_url = var.chef_server_url
     node_name       = "macosnode-${count.index}"
-    munki_repo_url  = var.munki_repo_bucket_url
     validator_key   = file("${path.root}/../keys/validator.pem")
+    policy_group    = var.policy_group_name
+    policy_name     = var.policy_name
   })
 
   tags = {

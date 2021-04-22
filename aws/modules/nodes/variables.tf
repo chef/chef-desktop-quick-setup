@@ -53,7 +53,7 @@ variable "key_name" {
 variable "windows_node_count" {
   type        = number
   description = "Number of windows nodes"
-  default     = 2
+  default     = 1
 }
 
 variable "macos_node_count" {
@@ -117,4 +117,16 @@ variable "private_key_path" {
   type        = string
   description = "Private key path"
   default     = "../keys/aws_terraform"
+}
+
+variable "policy_group_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy-group"
+}
+
+variable "policy_name" {
+  type = string
+  description = "Name of the policy to create on server"
+  default = "cdqs-policy"
 }
