@@ -95,6 +95,7 @@ resource "azurerm_linux_virtual_machine" "automate" {
       org_name          = var.automate_credentials.org_name
       org_display_name  = var.automate_credentials.org_display_name
       validator_path    = var.automate_credentials.validator_path
+      fqdn = azurerm_public_ip.automate_public_ip.fqdn
     })
     destination = "~/automate.setup.sh"
   }
