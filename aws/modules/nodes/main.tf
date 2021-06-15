@@ -81,7 +81,7 @@ resource "aws_instance" "macos_node" {
   user_data = templatefile("${path.root}/../templates/macos.setup.tpl", {
     chef_server_url = var.chef_server_url
     node_name       = "macosnode-${count.index}"
-    validator_key   = file("${path.root}/../keys/validator.pem")
+    validator_key   = var.create_macos_nodes ? file("${path.root}/../keys/validator.pem") : ""
     policy_group    = var.policy_group_name
     policy_name     = var.policy_name
   })
