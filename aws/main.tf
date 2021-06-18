@@ -122,14 +122,21 @@ module "nodes" {
   policy_name               = var.policy_name
 }
 
+# Attach a random string to keep unique names for resources created within same account or organisation
+resource "random_string" "iam_random_string" {
+  length = 5
+  special = false
+}
+
+
 # Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
-  key_name   = "awskp"
+  key_name   = "awskp-${random_string.iam_random_string.result}"
   public_key = file("./${var.public_key_path}")
 }
 
 # Common bucket for gorilla and munki repositories.
 resource "aws_s3_bucket" "cdqs_app_mgmt" {
-  bucket = var.bucket_name
+  bucket = "${var.bucket_name}-${random_string.iam_random_string.result}"
   acl    = "private"
 }
