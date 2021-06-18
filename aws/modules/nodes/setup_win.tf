@@ -28,6 +28,7 @@ resource "null_resource" "windows_node_setup" {
     server_url      = var.chef_server_url
     user_name       = var.client_name
     recreate_client = true
+    version         = "16.13.16"
     user_key        = file("${path.root}/../keys/${var.client_name}.pem")
     # Since we have a self signed cert on our chef server we are setting this to :verify_none
     # In production we should get a certificate and configure for the server and set this to :verify_peer
