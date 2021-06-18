@@ -14,6 +14,12 @@ provider "aws" {
   region = var.resource_location
 }
 
+# Attach a random string to keep unique names for resources created within same account or organisation
+resource "random_string" "iam_random_string" {
+  length = 5
+  special = false
+}
+
 # Module for creating automate 2 server.
 module "automate" {
   source               = "./modules/automate"
@@ -121,13 +127,6 @@ module "nodes" {
   policy_group_name         = var.policy_group_name
   policy_name               = var.policy_name
 }
-
-# Attach a random string to keep unique names for resources created within same account or organisation
-resource "random_string" "iam_random_string" {
-  length = 5
-  special = false
-}
-
 
 # Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
