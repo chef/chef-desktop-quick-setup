@@ -15,9 +15,11 @@ provider "aws" {
 }
 
 # Attach a random string to keep unique names for resources created within same account or organisation
-resource "random_string" "iam_random_string" {
+resource "random_string" "rs" {
   length = 5
   special = false
+  upper = false
+  lower = true
 }
 
 # Module for creating automate 2 server.
@@ -130,12 +132,12 @@ module "nodes" {
 
 # Create a keypair entry on console using the local keypair we created for AWS.
 resource "aws_key_pair" "awskp" {
-  key_name   = "awskp-${random_string.iam_random_string.result}"
+  key_name   = "awskp-${random_string.rs.result}"
   public_key = file("./${var.public_key_path}")
 }
 
 # Common bucket for gorilla and munki repositories.
 resource "aws_s3_bucket" "cdqs_app_mgmt" {
-  bucket = "${var.bucket_name}-${random_string.iam_random_string.result}"
+  bucket = "${var.bucket_name}-${random_string.rs.result}"
   acl    = "private"
 }
