@@ -52,13 +52,7 @@ variable "windows_nodes" {
   default     = []
 }
 
-variable "windows_node_eips" {
-  type        = any
-  description = "Elastic IPs for windows nodes for winrm connection."
-  default     = []
-}
-
-variable "macos_node_eips" {
+variable "macos_nodes" {
   type        = any
   description = "Elastic IPs for macos nodes for ssh connection."
   default     = []

@@ -8,7 +8,7 @@ resource "null_resource" "windows_node_setup" {
 
   connection {
     type     = "winrm"
-    host     = aws_eip.node_eip[count.index].public_dns
+    host     = aws_instance.node[count.index].public_ip
     port     = "5985"
     user     = "Administrator"
     password = var.admin_password

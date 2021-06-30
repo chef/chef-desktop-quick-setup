@@ -99,15 +99,3 @@ resource "aws_instance" "macos_node" {
     Name        = "cdqs-macos-node-${count.index}"
   }
 }
-
-resource "aws_eip" "node_eip" {
-  count    = var.windows_node_count
-  instance = aws_instance.node[count.index].id
-  vpc      = true
-}
-
-resource "aws_eip" "macos_node_eip" {
-  count    = var.create_macos_nodes ? var.macos_node_count : 0
-  instance = aws_instance.macos_node[count.index].id
-  vpc      = true
-}

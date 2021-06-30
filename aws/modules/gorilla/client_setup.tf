@@ -14,7 +14,7 @@ resource "null_resource" "gorilla_setup" {
 
   connection {
     type     = "winrm"
-    host     = var.windows_node_eips[count.index].public_dns
+    host     = var.windows_nodes[count.index].public_ip
     port     = "5985"
     user     = "Administrator"
     password = var.admin_password

@@ -9,7 +9,7 @@ variable "bucket" {
   description = "Name of the bucket containing munki repository"
 }
 
-variable "macos_node_eips" {
+variable "macos_nodes" {
   type        = any
   description = "Elastic IPs for macos nodes for ssh connection."
   default     = []

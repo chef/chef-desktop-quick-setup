@@ -36,14 +36,14 @@ resource "null_resource" "update_windows_nodes" {
   triggers = {
     node_id = "${var.windows_nodes[count.index].id}"
     admin_password = var.admin_password
-    server_dns = var.windows_node_eips[count.index].public_dns
+    server_ip = var.windows_nodes[count.index].public_ip
   }
 
   # Configure data_collector url and token, then perform chef-client run.
   provisioner "file" {
     connection {
       type     = "winrm"
-      host     = var.windows_node_eips[count.index].public_dns
+      host     = var.windows_nodes[count.index].public_ip
       port     = "5985"
       user     = "Administrator"
       password = var.admin_password
@@ -59,7 +59,7 @@ resource "null_resource" "update_windows_nodes" {
   provisioner "remote-exec" {
     connection {
       type     = "winrm"
-      host     = var.windows_node_eips[count.index].public_dns
+      host     = var.windows_nodes[count.index].public_ip
       port     = "5985"
       user     = "Administrator"
       password = var.admin_password
@@ -76,7 +76,7 @@ resource "null_resource" "update_windows_nodes" {
     when = destroy
     connection {
       type     = "winrm"
-      host     = self.triggers.server_dns
+      host     = self.triggers.server_ip
       port     = "5985"
       user     = "Administrator"
       password = self.triggers.admin_password
@@ -89,7 +89,7 @@ resource "null_resource" "update_windows_nodes" {
     when = destroy
     connection {
       type     = "winrm"
-      host     = self.triggers.server_dns
+      host     = self.triggers.server_ip
       port     = "5985"
       user     = "Administrator"
       password = self.triggers.admin_password

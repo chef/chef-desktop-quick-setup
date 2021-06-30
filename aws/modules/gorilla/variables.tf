@@ -19,12 +19,6 @@ variable "windows_nodes" {
   default     = []
 }
 
-variable "windows_node_eips" {
-  type        = any
-  description = "Elastic IPs for windows nodes for winrm connection."
-  default     = []
-}
-
 variable "admin_password" {
   type        = string
   description = "Administrator password for windows nodes"
