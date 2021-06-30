@@ -1,6 +1,6 @@
   # Re create the default allow all egress rule.
 resource "aws_security_group" "allow_all_outgoing_requests" {
-  name        = "default_egress_allow_all-${random_string.iam_random_string.result}"
+  name        = "default_egress_allow_all-${random_string.rs.result}"
   description = "Default allow all outbound requests"
   vpc_id      = aws_vpc.vpc.id
   egress {
@@ -13,7 +13,7 @@ resource "aws_security_group" "allow_all_outgoing_requests" {
 
   # Allow anyone to connect to port 22
 resource "aws_security_group" "allow_ssh" {
-  name        = "allow_ssh-${random_string.iam_random_string.result}"
+  name        = "allow_ssh-${random_string.rs.result}"
   description = "Allow SSH"
   vpc_id      = aws_vpc.vpc.id
 
@@ -28,7 +28,7 @@ resource "aws_security_group" "allow_ssh" {
 
   # Allow http requests.
 resource "aws_security_group" "allow_http" {
-  name        = "allow_http-${random_string.iam_random_string.result}"
+  name        = "allow_http-${random_string.rs.result}"
   description = "Allow HTTP requests"
   vpc_id      = aws_vpc.vpc.id
   ingress {
@@ -42,7 +42,7 @@ resource "aws_security_group" "allow_http" {
 
   # Allow RDP client to connect to the instance.
 resource "aws_security_group" "allow_rdp" {
-  name        = "allow_win_rdp_connection-${random_string.iam_random_string.result}"
+  name        = "allow_win_rdp_connection-${random_string.rs.result}"
   description = "Allow RDP clients to connect"
   vpc_id      = aws_vpc.vpc.id
 
@@ -57,7 +57,7 @@ resource "aws_security_group" "allow_rdp" {
 
   # Allow WinRM connections to the instance.
 resource "aws_security_group" "allow_winrm" {
-  name        = "allow_winrm-${random_string.iam_random_string.result}"
+  name        = "allow_winrm-${random_string.rs.result}"
   description = "Allow WinRM connections"
   vpc_id      = aws_vpc.vpc.id
   ingress {
