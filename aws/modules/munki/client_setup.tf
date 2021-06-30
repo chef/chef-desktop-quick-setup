@@ -4,16 +4,16 @@ resource "null_resource" "munki_setup" {
     aws_s3_bucket_object.upload_munki_repository_content,
   ]
 
-  count = length(var.macos_node_eips)
+  count = length(var.macos_nodes)
 
   triggers = {
-    node_id = "${var.macos_node_eips[count.index].id}"
+    node_id = "${var.macos_nodes[count.index].id}"
   }
 
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    host        = var.macos_node_eips[count.index].public_dns
+    host        = var.macos_nodes[count.index].public_ip
     private_key = file("${path.root}/${var.private_key_path}")
   }
   # Create the munki client setup script.

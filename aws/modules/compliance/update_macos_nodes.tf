@@ -27,15 +27,15 @@ resource "null_resource" "update_macos_nodes" {
   depends_on = [
     null_resource.update_chef_repo
   ]
-  # Count is used as length of windows_node_setup so that the resource implicitly
-  # depends on the node setup than the node/instance creation, which is a different action.
-  # We would want to wait for the initial setup otherwise the two resources will
-  # execute in parellel, resulting in a race condition which will result in an error.
-  count = length(var.macos_node_eips)
+  # Count is used as length of macos_nodes so that the resource depends on
+  # the node setup. We would want to wait for the initial setup otherwise
+  # the two resources will execute in parellel, resulting in a race
+  # condition which will result in an error.
+  count = length(var.macos_nodes)
 
   triggers = {
-    node_id    = "${var.macos_node_eips[count.index].id}"
-    server_dns = var.macos_node_eips[count.index].public_dns
+    node_id    = "${var.macos_nodes[count.index].id}"
+    server_ip = var.macos_nodes[count.index].public_ip
     private_key = file("${path.root}/${var.private_key_path}")
   }
 
@@ -45,7 +45,7 @@ resource "null_resource" "update_macos_nodes" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      host        = var.macos_node_eips[count.index].public_dns
+      host        = var.macos_nodes[count.index].public_ip
       private_key = file("${path.root}/${var.private_key_path}")
     }
     content = templatefile("${path.root}/../templates/compliance/configure_data_collector.sh.tpl", {
@@ -59,7 +59,7 @@ resource "null_resource" "update_macos_nodes" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      host        = var.macos_node_eips[count.index].public_dns
+      host        = var.macos_nodes[count.index].public_ip
       private_key = file("${path.root}/${var.private_key_path}")
     }
     inline = [ "/bin/bash ~/configure_data_collector.sh", "rm ~/configure_data_collector.sh"]
@@ -71,7 +71,7 @@ resource "null_resource" "update_macos_nodes" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      host        = self.triggers.server_dns
+      host        = self.triggers.server_ip
       private_key = self.triggers.private_key
     }
     content     = file("${path.root}/../templates/compliance/remove_data_collector_configuration.sh.tpl")
@@ -82,7 +82,7 @@ resource "null_resource" "update_macos_nodes" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      host        = self.triggers.server_dns
+      host        = self.triggers.server_ip
       private_key = self.triggers.private_key
     }
     inline = ["/bin/bash ~/remove_data_collector_configuration.sh", "rm ~/remove_data_collector_configuration.sh"]

@@ -3,14 +3,10 @@ output "windows_nodes" {
   description = "Windows nodes created by the module."
 }
 
-output "windows_node_eips" {
-  value = aws_eip.node_eip
-  description = "Elastic IPs for windows nodes"
-}
-
-output "macos_node_eips" {
-  value = aws_eip.macos_node_eip
+output "macos_nodes" {
+  value = aws_instance.macos_node
   description = "Elastic IPs for macos nodes"
+  sensitive = true
 }
 
 output "windows_node_setup" {
