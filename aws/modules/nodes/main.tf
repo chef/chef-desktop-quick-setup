@@ -93,6 +93,13 @@ resource "aws_instance" "macos_node" {
     policy_name     = var.policy_name
   })
 
+  provisioner "local-exec" {
+    command = templatefile("${path.root}/../templates/macos_ec2_status_check.tpl", {
+      region      = var.resource_location
+      instance_id = self.id
+    })
+  }
+
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
