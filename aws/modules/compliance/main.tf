@@ -45,7 +45,8 @@ resource "null_resource" "create_inspec_profile" {
 
   provisioner "local-exec" {
     when = destroy
-    command = "${self.triggers.isMacOS ? "rm -rf": "rd /s /q"} ${abspath("${path.root}/../.cache/${self.triggers.chef_repo_name}/${self.triggers.inspec_profile_name}")}"
+    command = "${self.triggers.isMacOS ? "rm -rf": "Remove-Item -Recurse -Force -Path"} ${abspath("${path.root}/../.cache/${self.triggers.chef_repo_name}/${self.triggers.inspec_profile_name}")}"
+    interpreter = self.triggers.isMacOS ? null : ["Powershell", "-Command"]
   }
 }
 
