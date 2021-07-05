@@ -11,6 +11,11 @@ provider "aws" {
   region = var.resource_location
 }
 
+locals {
+  fullPathToModule = abspath("${path.module}/main.tf")
+  isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
+}
+
 data "local_file" "validator_key" {
   depends_on = [
     var.node_setup_depends_on
@@ -94,10 +99,11 @@ resource "aws_instance" "macos_node" {
   })
 
   provisioner "local-exec" {
-    command = templatefile("${path.root}/../templates/macos_ec2_status_check.tpl", {
+    command = templatefile("${path.root}/../templates/macos_ec2_status_check${local.isMacOS ? "" : ".ps1"}.tpl", {
       region      = var.resource_location
       instance_id = self.id
     })
+    interpreter = local.isMacOS ? null : ["Powershell", "-Command"]
   }
 
   tags = {
