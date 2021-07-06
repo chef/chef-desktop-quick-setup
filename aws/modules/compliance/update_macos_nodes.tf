@@ -25,7 +25,8 @@ remove it from the instance once it completes execution.
 */
 resource "null_resource" "update_macos_nodes" {
   depends_on = [
-    null_resource.update_chef_repo
+    null_resource.update_chef_repo,
+    var.macos_setup_depends_on
   ]
   # Count is used as length of macos_nodes so that the resource depends on
   # the node setup. We would want to wait for the initial setup otherwise

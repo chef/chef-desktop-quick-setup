@@ -25,3 +25,9 @@ variable "bucket_domain_name" {
   type        = string
   description = "URL to the bucket"
 }
+
+variable "munki_setup_depends_on" {
+  type        = any
+  description = "Resource dependencies for munki setup"
+  default     = []
+}

@@ -16,13 +16,6 @@ locals {
   isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
 }
 
-data "local_file" "validator_key" {
-  depends_on = [
-    var.node_setup_depends_on
-  ]
-  filename = "${path.root}/../keys/validator.pem"
-}
-
 resource "aws_instance" "node" {
   count                       = var.windows_node_count
   ami                         = var.windows_ami_id # Windows base server 2019 ami
@@ -87,17 +80,21 @@ resource "aws_instance" "macos_node" {
   # Attach instance profile for s3 bucket access.
   iam_instance_profile = var.iam_instance_profile_name
 
-  # macOS instances are taking quite a bit of time to allow ssh into the systems after their creation
-  # to run scripts. So we can pass the scripts for node bootstrapping, chef client run, munki client
-  # configuration and run on user_data. This seems to be the only graceful way of doing this at this time.
-  user_data = templatefile("${path.root}/../templates/macos.setup.tpl", {
+  # macOS instances don't allow writing to /etc without root privileges. Asking the user to 
+  # setup root privilages and then retry setup would not be desirable. Hence, we pass the
+  # instructions for chef-client installation and setting up first-boot.json and client.rb
+  # through user_data.
+  user_data = templatefile("${path.root}/../templates/macos_user_data.tpl", {
     chef_server_url = var.chef_server_url
-    node_name       = "macosnode-${count.index}"
-    validator_key   = data.local_file.validator_key.content
+    node_name       = "macos-node"
     policy_group    = var.policy_group_name
     policy_name     = var.policy_name
   })
 
+  # Since terraform doesn't provide a way to wait for the macOS instance to come online, 
+  # we use the aws command-line with a max wait of 30mins (15-second interval checks). As
+  # soon as the instance is ready to accept connections, this provisioner will complete
+  # and the execution will move on to the next resource.
   provisioner "local-exec" {
     command = templatefile("${path.root}/../templates/macos_ec2_status_check${local.isMacOS ? "" : ".ps1"}.tpl", {
       region      = var.resource_location

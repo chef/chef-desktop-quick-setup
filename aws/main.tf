@@ -16,10 +16,10 @@ provider "aws" {
 
 # Attach a random string to keep unique names for resources created within same account or organisation
 resource "random_string" "rs" {
-  length = 5
+  length  = 5
   special = false
-  upper = false
-  lower = true
+  upper   = false
+  lower   = true
 }
 
 # Module for creating automate 2 server.
@@ -62,10 +62,11 @@ module "compliance" {
     module.automate.automate_server_setup,
     module.automate.setup_policy
   ]
-  windows_nodes      = module.nodes.windows_nodes
-  macos_nodes    = module.nodes.macos_nodes
-  windows_node_setup = module.nodes.windows_node_setup
-  admin_password     = var.admin_password_win_node
+  macos_setup_depends_on = [module.nodes.macos_chef_setup]
+  windows_nodes          = module.nodes.windows_nodes
+  macos_nodes            = module.nodes.macos_nodes
+  windows_node_setup     = module.nodes.windows_node_setup
+  admin_password         = var.admin_password_win_node
 }
 
 # Set up IAM profile to provide access to s3 bucket from virtual nodes.
@@ -75,12 +76,13 @@ module "iam" {
 
 # Module for creating the munki repo and pushing to s3 bucket.
 module "munki" {
-  source             = "./modules/munki"
-  bucket             = aws_s3_bucket.cdqs_app_mgmt.bucket
-  bucket_domain_name = aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name
-  resource_location  = var.resource_location
-  macos_nodes    = module.nodes.macos_nodes
-  private_key_path   = var.private_key_path
+  source                 = "./modules/munki"
+  bucket                 = aws_s3_bucket.cdqs_app_mgmt.bucket
+  bucket_domain_name     = aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name
+  resource_location      = var.resource_location
+  macos_nodes            = module.nodes.macos_nodes
+  munki_setup_depends_on = [module.nodes.macos_chef_setup]
+  private_key_path       = var.private_key_path
 }
 
 # Module for creating the gorilla repo and pushing to s3 bucket.

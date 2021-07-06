@@ -58,6 +58,12 @@ variable "macos_nodes" {
   default     = []
 }
 
+variable "macos_setup_depends_on" {
+  type        = any
+  description = "Resource dependencies for macos compliance setup."
+  default     = []
+}
+
 variable "windows_node_setup" {
   type = any
   description = "Initial chef client setup of windows nodes"
