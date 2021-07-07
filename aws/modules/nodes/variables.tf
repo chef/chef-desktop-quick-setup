@@ -116,7 +116,6 @@ variable "macdhost_id" {
 variable "private_key_path" {
   type        = string
   description = "Private key path"
-  default     = "../keys/aws_terraform"
 }
 
 variable "policy_group_name" {

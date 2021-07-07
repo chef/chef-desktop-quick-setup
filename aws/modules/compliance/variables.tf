@@ -1,37 +1,37 @@
 variable "inspec_profile_name" {
-  type = string
+  type        = string
   description = "Name of the inspec profile"
-  default = "cdqs-inspec-profile"
+  default     = "cdqs-inspec-profile"
 }
 
 variable "chef_repo_name" {
-  type = string
+  type        = string
   description = "Name of the local chef repo"
 }
 
 variable "automate_server_url" {
-  type = string
+  type        = string
   description = "Automate server URL"
 }
 
 variable "automate_server_public_ip" {
-  type = string
+  type        = string
   description = "Automate server public IP"
 }
 
 # Path to AWS private key.
 variable "private_key_path" {
-  type = string
+  type        = string
   description = "Private key path"
 }
 
 variable "private_ppk_key_path" {
-  type = string
+  type        = string
   description = "Private key path for PuTTY connection (relative to terraform's path.root value)"
 }
 
 variable "policy_group_name" {
-  type = string
+  type        = string
   description = "Name of the policy to create on server"
 }
 
@@ -42,8 +42,8 @@ variable "admin_username" {
 }
 
 variable "compliance_depends_on" {
- type = any
- description = "Dependency on automate server setup" 
+  type        = any
+  description = "Dependency on automate server setup"
 }
 
 variable "windows_nodes" {
@@ -65,9 +65,9 @@ variable "macos_setup_depends_on" {
 }
 
 variable "windows_node_setup" {
-  type = any
+  type        = any
   description = "Initial chef client setup of windows nodes"
-  default =  []
+  default     = []
 }
 
 variable "admin_password" {

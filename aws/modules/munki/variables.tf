@@ -1,7 +1,6 @@
 variable "resource_location" {
   type        = string
   description = "Region/Location for the resources"
-  default     = "ap-south-1"
 }
 
 variable "bucket" {
