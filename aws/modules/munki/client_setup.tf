@@ -2,6 +2,7 @@
 resource "null_resource" "munki_setup" {
   depends_on = [
     aws_s3_bucket_object.upload_munki_repository_content,
+    var.munki_setup_depends_on
   ]
 
   count = length(var.macos_nodes)

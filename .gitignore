@@ -101,3 +101,5 @@ keys/**
 !files/gorilla-*.exe
 # Custom cache directory.
 .cache
+
+files/munki-repository/*
