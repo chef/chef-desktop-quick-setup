@@ -128,6 +128,7 @@ module "nodes" {
   create_macos_nodes        = var.create_macos_nodes
   policy_group_name         = var.policy_group_name
   policy_name               = var.policy_name
+  private_key_path          = var.private_key_path
 }
 
 # Create a keypair entry on console using the local keypair we created for AWS.
