@@ -14,3 +14,6 @@ automate_credentials = {
 admin_password_win_node = "admin@12345"
 # We need a dedicated host ID if we plan on using munki and macos virtual nodes. The ID will be available on the console once we manually create it.
 macdhost_id = "<dedicated_host_id>"
+public_key_path = "../keys/aws_terraform.pub"
+private_key_path = "../keys/aws_terraform"
+private_ppk_key_path = "../keys/aws_terraform.ppk"
