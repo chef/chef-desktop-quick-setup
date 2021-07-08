@@ -20,7 +20,7 @@ resource "null_resource" "munki_setup" {
   # Create the munki client setup script.
   provisioner "file" {
     content = templatefile("${path.root}/../templates/munki.client.setup.sh.tpl", {
-      munki_repo_url = "https://${var.bucket_domain_name}/munki-repository/"
+      munki_repo_url = "https://${var.bucket_domain_name}/munki-repository"
     })
     destination = "~/munki.client.setup.sh"
   }
