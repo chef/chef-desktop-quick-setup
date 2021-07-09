@@ -1,7 +1,6 @@
 admin_username          = "ubuntu"
 resource_location       = "us-east-1" # We can use any region we have available.
 availability_zone       = "us-east-1a" # We can use any zone we have available.
-automate_dns_name_label = "chefdesktopautomatedemo"
 automate_credentials = {
   user_name         = "myclient"
   user_display_name = "My Client"

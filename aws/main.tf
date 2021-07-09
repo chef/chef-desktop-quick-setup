@@ -38,7 +38,6 @@ module "automate" {
     aws_security_group.allow_all_outgoing_requests.id
   ]
   key_name                = aws_key_pair.awskp.key_name
-  automate_dns_name_label = var.automate_dns_name_label
   automate_depends_on = [
     # Explicit dependency on the route table association with the subnet to make sure route tables are created when automate module is run.
     aws_route_table_association.subnet_association,
@@ -122,8 +121,6 @@ module "nodes" {
     module.automate.setup_policy
   ]
   iam_instance_profile_name = module.iam.instance_profile_name
-  bucket_name               = var.bucket_name
-  munki_repo_bucket_url     = "https://${aws_s3_bucket.cdqs_app_mgmt.bucket_domain_name}/munki-repository"
   macdhost_id               = var.macdhost_id
   create_macos_nodes        = var.create_macos_nodes
   policy_group_name         = var.policy_group_name
