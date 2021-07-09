@@ -21,12 +21,6 @@ variable "availability_zone" {
   description = "Availability zone for the resources"
 }
 
-# Automate public dns name label.
-variable "automate_dns_name_label" {
-  type        = string
-  description = "Automate DNS name label"
-}
-
 # Credentials for automate server. Used for creating user and organisation.
 variable "automate_credentials" {
   type = object({

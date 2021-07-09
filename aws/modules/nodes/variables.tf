@@ -92,16 +92,6 @@ variable "iam_instance_profile_name" {
   description = "S3 access IAM instance profile name"
 }
 
-variable "munki_repo_bucket_url" {
-  type        = string
-  description = "URL to munki repository/bucket-object"
-}
-
-variable "bucket_name" {
-  type        = string
-  description = "URL to bucket containing gorilla repository"
-}
-
 variable "create_macos_nodes" {
   type        = bool
   description = "Whether to create a macos node and connect it to the server"

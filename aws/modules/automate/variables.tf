@@ -20,12 +20,6 @@ variable "subnet_id" {
   description = "Subnet ID"
 }
 
-
-variable "automate_dns_name_label" {
-  type        = string
-  description = "Automate DNS name label"
-}
-
 variable "automate_credentials" {
   type = object({
     user_name         = string
