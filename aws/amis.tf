@@ -41,6 +41,7 @@ data "aws_ami" "windows_2019" {
 }
 
 data "aws_ami" "macos_catalina" {
+  count = var.create_macos_nodes ? 1 : 0
   most_recent = true
   owners = ["amazon"]
   filter {
