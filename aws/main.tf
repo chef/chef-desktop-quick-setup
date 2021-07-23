@@ -98,7 +98,7 @@ module "gorilla" {
 module "nodes" {
   source                      = "./modules/nodes"
   windows_ami_id              = data.aws_ami.windows_2019.id
-  macos_ami_id                = data.aws_ami.macos_catalina.id
+  macos_ami_id                = var.create_macos_nodes ? data.aws_ami.macos_catalina[0].id : null
   admin_password              = var.admin_password_win_node
   resource_location           = var.resource_location
   subnet_id                   = aws_subnet.subnet.id
