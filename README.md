@@ -14,7 +14,11 @@ By utilizing [Terraform](https://www.terraform.io/) and leveraging module blocks
 - gorilla
 - munki
 
-## How to use
+## Getting started
 
 Please check this repository's [wiki page](https://github.com/chef/chef-desktop-quick-setup/wiki) to find detailed instructions on how to set up and use the scripts.
+
+## Contributing
+
+For information on contributing to this project, please see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
