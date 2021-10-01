@@ -123,6 +123,7 @@ module "nodes" {
   iam_instance_profile_name = module.iam.instance_profile_name
   macdhost_id               = var.macdhost_id
   create_macos_nodes        = var.create_macos_nodes
+  windows_node_count        = var.windows_node_count
   policy_group_name         = var.policy_group_name
   policy_name               = var.policy_name
   private_key_path          = var.private_key_path
