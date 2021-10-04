@@ -5,6 +5,13 @@ variable "resource_location" {
   default     = "ap-south-1"
 }
 
+# Availibility zone from the above region.
+variable "availability_zone" {
+  type        = string
+  description = "Availability zone for the resources"
+}
+
+
 variable "windows_ami_id" {
   type        = string
   description = "AMI ID for windows nodes"
@@ -59,7 +66,6 @@ variable "windows_node_count" {
 variable "macos_node_count" {
   type        = number
   description = "Number of macos nodes"
-  default     = 1
 }
 
 variable "windows_node_instance_type" {
@@ -70,6 +76,7 @@ variable "chef_server_url" {
   type        = string
   description = "Public url of the automate server"
 }
+
 variable "client_name" {
   type        = string
   description = "Client name for validation"
@@ -90,17 +97,6 @@ variable "node_setup_depends_on" {
 variable "iam_instance_profile_name" {
   type        = string
   description = "S3 access IAM instance profile name"
-}
-
-variable "create_macos_nodes" {
-  type        = bool
-  description = "Whether to create a macos node and connect it to the server"
-  default     = false
-}
-
-variable "macdhost_id" {
-  type        = string
-  description = "mac dedicated host id"
 }
 
 variable "private_key_path" {

@@ -4,7 +4,7 @@ output "windows_nodes" {
 }
 
 output "macos_nodes" {
-  value = aws_instance.macos_node
+  value = aws_instance.macos_nodes
   description = "Elastic IPs for macos nodes"
   sensitive = true
 }

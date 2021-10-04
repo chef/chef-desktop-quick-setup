@@ -98,9 +98,10 @@ module "gorilla" {
 module "nodes" {
   source                      = "./modules/nodes"
   windows_ami_id              = data.aws_ami.windows_2019.id
-  macos_ami_id                = var.create_macos_nodes ? data.aws_ami.macos_catalina[0].id : null
+  macos_ami_id                = data.aws_ami.macos_catalina.id
   admin_password              = var.admin_password_win_node
   resource_location           = var.resource_location
+  availability_zone           = var.availability_zone
   subnet_id                   = aws_subnet.subnet.id
   allow_ssh                   = aws_security_group.allow_ssh.id
   allow_rdp                   = aws_security_group.allow_rdp.id
@@ -121,8 +122,7 @@ module "nodes" {
     module.automate.setup_policy
   ]
   iam_instance_profile_name = module.iam.instance_profile_name
-  macdhost_id               = var.macdhost_id
-  create_macos_nodes        = var.create_macos_nodes
+  macos_node_count          = var.macos_node_count
   policy_group_name         = var.policy_group_name
   policy_name               = var.policy_name
   private_key_path          = var.private_key_path
