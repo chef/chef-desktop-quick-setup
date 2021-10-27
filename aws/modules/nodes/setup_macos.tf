@@ -12,11 +12,11 @@ data "local_file" "validator_key" {
 # By moving the validation.pem creation to a file provisioner block, we remove the "noise"
 # from local_file content in user_data and persist the virtual node for a successful converge.
 resource "null_resource" "macos_chef_setup" {
-  count = length(aws_instance.macos_node) 
+  count = length(aws_instance.macos_nodes) 
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    host        = aws_instance.macos_node[count.index].public_ip
+    host        = aws_instance.macos_nodes[count.index].public_ip
     private_key = file("${path.root}/${var.private_key_path}")
   }
 

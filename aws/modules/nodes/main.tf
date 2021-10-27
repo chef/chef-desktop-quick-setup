@@ -13,7 +13,7 @@ provider "aws" {
 
 locals {
   fullPathToModule = abspath("${path.module}/main.tf")
-  isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
+  isMacOS          = substr(local.fullPathToModule, 0, 1) == "/"
 }
 
 resource "aws_instance" "node" {
@@ -62,12 +62,25 @@ resource "aws_instance" "node" {
   EOF
 }
 
+# Create a new host with instance type of mac1.metal with Auto Placement enabled. 
+resource "aws_ec2_host" "macos_dedicated_hosts" {
+  count             = var.macos_node_count
+  instance_type     = "mac1.metal"
+  availability_zone = var.availability_zone
+  auto_placement    = "on"
+  tags = {
+    Environment = "Chef Desktop flow"
+    Team        = "Chef Desktop"
+    Name        = "cdqs-macos-host-${count.index}"
+  }
+}
+
 # Create macOS instances on dedicated host
-resource "aws_instance" "macos_node" {
-  count                       = var.create_macos_nodes ? var.macos_node_count : 0
+resource "aws_instance" "macos_nodes" {
+  count                       = length(aws_ec2_host.macos_dedicated_hosts)
   ami                         = var.macos_ami_id
-  instance_type               = "mac1.metal"
-  host_id                     = var.macdhost_id
+  instance_type               = aws_ec2_host.macos_dedicated_hosts[count.index].instance_type
+  host_id                     = aws_ec2_host.macos_dedicated_hosts[count.index].id
   associate_public_ip_address = true
   vpc_security_group_ids = [
     var.allow_ssh,
@@ -86,7 +99,7 @@ resource "aws_instance" "macos_node" {
   # through user_data.
   user_data = templatefile("${path.root}/../templates/macos_user_data.tpl", {
     chef_server_url = var.chef_server_url
-    node_name       = "macos-node"
+    node_name       = "macos-node-${aws_ec2_host.macos_dedicated_hosts[count.index].id}"
     policy_group    = var.policy_group_name
     policy_name     = var.policy_name
   })
@@ -106,6 +119,6 @@ resource "aws_instance" "macos_node" {
   tags = {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
-    Name        = "cdqs-macos-node-${count.index}"
+    Name        = "cdqs-macos-node-${aws_ec2_host.macos_dedicated_hosts[count.index].id}"
   }
 }
