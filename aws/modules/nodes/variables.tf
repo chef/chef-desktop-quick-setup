@@ -10,6 +10,11 @@ variable "windows_ami_id" {
   description = "AMI ID for windows nodes"
 }
 
+variable "ubuntu_ami_id" {
+  type        = string
+  description = "AMI ID for ubuntu nodes"
+}
+
 variable "macos_ami_id" {
   type        = string
   description = "AMI ID for macos nodes"
@@ -59,6 +64,12 @@ variable "windows_node_count" {
 variable "macos_node_count" {
   type        = number
   description = "Number of macos nodes"
+  default     = 1
+}
+
+variable "linux_node_count" {
+  type        = number
+  description = "Number of ubuntu nodes"
   default     = 1
 }
 

@@ -27,12 +27,12 @@ resource "null_resource" "macos_chef_setup" {
   }
 
   provisioner "file" {
-    content = file("${path.root}/../scripts/macos_setup.sh")
-    destination = "~/macos_setup.sh"
+    content = file("${path.root}/../scripts/bash_setup.sh")
+    destination = "~/bash_setup.sh"
   }
 
   # Bootstrap the node with chef-client run and remove the validation.pem from node.
   provisioner "remote-exec" {
-    inline = [ "/bin/bash ~/macos_setup.sh"]
+    inline = [ "/bin/bash ~/bash_setup.sh"]
   }
 }

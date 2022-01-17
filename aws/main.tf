@@ -97,6 +97,7 @@ module "gorilla" {
 # Module for creating virtual nodes.
 module "nodes" {
   source                      = "./modules/nodes"
+  ubuntu_ami_id               = data.aws_ami.ubuntu_1804.id
   windows_ami_id              = data.aws_ami.windows_2019.id
   macos_ami_id                = var.create_macos_nodes ? data.aws_ami.macos_catalina[0].id : null
   admin_password              = var.admin_password_win_node
