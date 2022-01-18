@@ -64,6 +64,8 @@ module "compliance" {
   macos_setup_depends_on = [module.nodes.macos_chef_setup]
   windows_nodes          = module.nodes.windows_nodes
   macos_nodes            = module.nodes.macos_nodes
+  linux_nodes            = module.nodes.linux_nodes
+  linux_node_setup       = module.nodes.linux_node_setup
   windows_node_setup     = module.nodes.windows_node_setup
   admin_password         = var.admin_password_win_node
 }
