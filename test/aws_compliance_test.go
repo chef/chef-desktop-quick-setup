@@ -19,13 +19,13 @@ func TestComplianceTargetAWS(context *testing.T) {
 	tmpFile, err := ioutil.TempFile("", "test-data-temp-file")
 	assert.NoError(context, err)
 
-	test_structure.RunTestStage(context, "setup", func ()  {
-		terraformOptions := configureTerraformOptions(context, awsModule, []string{"module.compliance"})
+	test_structure.RunTestStage(context, "setup", func() {
+		terraformOptions := ConfigureTerraformOptions(context, awsModule, []string{"module.compliance"})
 		test_structure.SaveTerraformOptions(context, awsModule, terraformOptions)
-		
+
 		// Run terraform apply with target as automate
 		terraform.InitAndApply(context, terraformOptions)
-		
+
 		// Get automate module outputs as JSON string and convert it into struct.
 		outputJSONString, err := terraform.OutputJsonE(context, terraformOptions, "automate_module_outputs")
 		assert.NoError(context, err)
@@ -48,23 +48,29 @@ func TestComplianceTargetAWS(context *testing.T) {
 		assert.NoError(context, err)
 		publicKeyPath, _ := filepath.Abs(publicKeyRelPath)
 		publicKey, _ := ioutil.ReadFile(publicKeyPath)
-		
+
 		// Read private key from local
 		privateKeyRelPath, err := terraform.GetVariableAsStringFromVarFileE(context, terraformOptions.VarFiles[0], "private_key_path")
 		assert.NoError(context, err)
 		privateKeyPath, _ := filepath.Abs(privateKeyRelPath)
 		privateKey, _ := ioutil.ReadFile(privateKeyPath)
-		
+
 		// Create keypair struct
 		// NOTE: Should we create a new keypair with aws.CreateAndImportEC2KeyPairE and later delete it on teardown phase?
 		keypair := ssh.KeyPair{PublicKey: string(publicKey), PrivateKey: string(privateKey)}
 
+		// Get automate and nodes module outputs.
+		automateOutputData := GetAutomateOutputJSON(context, terraformOptions)
+		nodesOutputData := GetNodeOutputJSON(context, terraformOptions)
+
 		// Run tests.
-		testSSHAccessToAutomateInstance(context, terraformOptions, moduleOutputs, keypair)
-		testHTTPAccessToAutomateInstance(context, terraformOptions, moduleOutputs)
+		testSSHAccessToAutomateInstance(context, terraformOptions, automateOutputData, keypair)
+		testHTTPAccessToAutomateInstance(context, terraformOptions, automateOutputData)
+		testNodeListOnServer(context, terraformOptions, nodesOutputData)
+		testSSHAccessToNodeInstances(context, terraformOptions, nodesOutputData, keypair)
 	})
 
-	test_structure.RunTestStage(context, "teardown", func ()  {
+	test_structure.RunTestStage(context, "teardown", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(context, awsModule)
 		// Set target to nil for destroying all the resources.
 		terraformOptions.Targets = nil

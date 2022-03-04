@@ -9,6 +9,7 @@ type AutomateModuleJSONData struct {
 type NodesModuleJSONData struct {
 	WindowsNodes []AWSInstance `json:"windows_nodes"`
 	MacOSNodes []AWSInstance `json:"macos_nodes"`
+	LinuxNodes []AWSInstance `json:"linux_nodes"`
 }
 
 type Tags struct {

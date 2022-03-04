@@ -20,7 +20,7 @@ func TestMunkiTargetAWS(context *testing.T) {
 	assert.NoError(context, err)
 
 	test_structure.RunTestStage(context, "setup", func ()  {
-		terraformOptions := configureTerraformOptions(context, awsModule, []string{"module.munki"})
+		terraformOptions := ConfigureTerraformOptions(context, awsModule, []string{"module.munki"})
 		test_structure.SaveTerraformOptions(context, awsModule, terraformOptions)
 		
 		// Run terraform apply with target as automate
@@ -59,9 +59,11 @@ func TestMunkiTargetAWS(context *testing.T) {
 		// NOTE: Should we create a new keypair with aws.CreateAndImportEC2KeyPairE and later delete it on teardown phase?
 		keypair := ssh.KeyPair{PublicKey: string(publicKey), PrivateKey: string(privateKey)}
 
+		// Get automate and nodes module outputs.
+		nodesOutputData := GetNodeOutputJSON(context, terraformOptions)
+
 		// Run tests.
-		testSSHAccessToAutomateInstance(context, terraformOptions, moduleOutputs, keypair)
-		testHTTPAccessToAutomateInstance(context, terraformOptions, moduleOutputs)
+		testSSHAccessToNodeInstances(context, terraformOptions, nodesOutputData, keypair)
 	})
 
 	test_structure.RunTestStage(context, "teardown", func ()  {
