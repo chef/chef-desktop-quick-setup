@@ -101,3 +101,9 @@ variable "windows_node_count" {
   description = "Number of windows nodes"
   default     = 1
 }
+
+variable "linux_node_count" {
+  type        = number
+  description = "Number of linux nodes"
+  default     = 1
+}

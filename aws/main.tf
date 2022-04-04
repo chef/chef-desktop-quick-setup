@@ -127,6 +127,7 @@ module "nodes" {
   macdhost_id               = var.macdhost_id
   create_macos_nodes        = var.create_macos_nodes
   windows_node_count        = var.windows_node_count
+  linux_node_count          = var.linux_node_count
   policy_group_name         = var.policy_group_name
   policy_name               = var.policy_name
   private_key_path          = var.private_key_path
