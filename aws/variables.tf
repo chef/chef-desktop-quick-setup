@@ -95,3 +95,9 @@ variable "chef_repo_name" {
   description = "Name of the local chef repo"
   default = "cdqs-chef-repo"
 }
+
+variable "windows_node_count" {
+  type        = number
+  description = "Number of windows nodes"
+  default     = 1
+}
