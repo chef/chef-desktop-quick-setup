@@ -116,7 +116,6 @@ resource "aws_instance" "linux_node" {
   instance_type               = var.windows_node_instance_type
   associate_public_ip_address = true
   vpc_security_group_ids = [
-    var.allow_rdp,
     var.allow_ssh,
     var.allow_all_outgoing_requests
   ]
