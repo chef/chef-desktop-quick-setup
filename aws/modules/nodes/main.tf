@@ -13,7 +13,7 @@ provider "aws" {
 
 locals {
   fullPathToModule = abspath("${path.module}/main.tf")
-  isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
+  isMacOS          = substr(local.fullPathToModule, 0, 1) == "/"
 }
 
 resource "aws_instance" "node" {
@@ -85,10 +85,11 @@ resource "aws_instance" "macos_node" {
   # instructions for chef-client installation and setting up first-boot.json and client.rb
   # through user_data.
   user_data = templatefile("${path.root}/../templates/bash_user_data.tpl", {
-    chef_server_url = var.chef_server_url
-    node_name       = "macos-node"
-    policy_group    = var.policy_group_name
-    policy_name     = var.policy_name
+    chef_server_url     = var.chef_server_url
+    node_name           = "macos-node"
+    policy_group        = var.policy_group_name
+    policy_name         = var.policy_name
+    validation_key_path = "/Users/ec2-user"
   })
 
   # Since terraform doesn't provide a way to wait for the macOS instance to come online, 
@@ -125,11 +126,12 @@ resource "aws_instance" "linux_node" {
   # Attach instance profile for s3 bucket access.
   iam_instance_profile = var.iam_instance_profile_name
 
-  user_data = templatefile("${path.root}/../templates/linux_user_data.tpl", {
-    chef_server_url = var.chef_server_url
-    node_name       = "ubuntu-node-${count.index}"
-    policy_group    = var.policy_group_name
-    policy_name     = var.policy_name
+  user_data = templatefile("${path.root}/../templates/bash_user_data.tpl", {
+    chef_server_url     = var.chef_server_url
+    node_name           = "ubuntu-node-${count.index}"
+    policy_group        = var.policy_group_name
+    policy_name         = var.policy_name
+    validation_key_path = "/home/ubuntu"
   })
 
   # Since terraform doesn't provide a way to wait for the instance to come online, 
