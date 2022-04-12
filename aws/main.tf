@@ -64,6 +64,8 @@ module "compliance" {
   macos_setup_depends_on = [module.nodes.macos_chef_setup]
   windows_nodes          = module.nodes.windows_nodes
   macos_nodes            = module.nodes.macos_nodes
+  linux_nodes            = module.nodes.linux_nodes
+  linux_node_setup       = module.nodes.linux_node_setup
   windows_node_setup     = module.nodes.windows_node_setup
   admin_password         = var.admin_password_win_node
 }
@@ -97,6 +99,7 @@ module "gorilla" {
 # Module for creating virtual nodes.
 module "nodes" {
   source                      = "./modules/nodes"
+  ubuntu_ami_id               = data.aws_ami.ubuntu_1804.id
   windows_ami_id              = data.aws_ami.windows_2019.id
   macos_ami_id                = var.create_macos_nodes ? data.aws_ami.macos_catalina[0].id : null
   admin_password              = var.admin_password_win_node
@@ -124,6 +127,7 @@ module "nodes" {
   macdhost_id               = var.macdhost_id
   create_macos_nodes        = var.create_macos_nodes
   windows_node_count        = var.windows_node_count
+  linux_node_count          = var.linux_node_count
   policy_group_name         = var.policy_group_name
   policy_name               = var.policy_name
   private_key_path          = var.private_key_path

@@ -16,7 +16,7 @@ sudo cat > '/etc/chef/client.rb' << EOF
 log_location            STDOUT
 chef_server_url         '${chef_server_url}'
 node_name               '${node_name}'
-validation_key          '/Users/ec2-user/validation.pem'
+validation_key          '${validation_key_path}/validation.pem'
 use_policyfile          true
 policy_group 	          '${policy_group}'
 policy_name 	          '${policy_name}'

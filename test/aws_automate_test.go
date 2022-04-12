@@ -21,7 +21,7 @@ func TestAutomateStandaloneAWS(context *testing.T) {
 	assert.NoError(context, err)
 	
 	test_structure.RunTestStage(context, "setup", func ()  {
-		terraformOptions := configureTerraformOptions(context, awsModule, []string{"module.automate"})
+		terraformOptions := ConfigureTerraformOptions(context, awsModule, []string{"module.automate"})
 		test_structure.SaveTerraformOptions(context, awsModule, terraformOptions)
 		
 		// Run terraform apply with target as automate

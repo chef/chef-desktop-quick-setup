@@ -13,7 +13,7 @@ provider "aws" {
 
 locals {
   fullPathToModule = abspath("${path.module}/main.tf")
-  isMacOS = substr(local.fullPathToModule, 0, 1) == "/"
+  isMacOS          = substr(local.fullPathToModule, 0, 1) == "/"
 }
 
 resource "aws_instance" "node" {
@@ -84,11 +84,12 @@ resource "aws_instance" "macos_node" {
   # setup root privilages and then retry setup would not be desirable. Hence, we pass the
   # instructions for chef-client installation and setting up first-boot.json and client.rb
   # through user_data.
-  user_data = templatefile("${path.root}/../templates/macos_user_data.tpl", {
-    chef_server_url = var.chef_server_url
-    node_name       = "macos-node"
-    policy_group    = var.policy_group_name
-    policy_name     = var.policy_name
+  user_data = templatefile("${path.root}/../templates/bash_user_data.tpl", {
+    chef_server_url     = var.chef_server_url
+    node_name           = "macos-node"
+    policy_group        = var.policy_group_name
+    policy_name         = var.policy_name
+    validation_key_path = "/Users/ec2-user"
   })
 
   # Since terraform doesn't provide a way to wait for the macOS instance to come online, 
@@ -96,7 +97,7 @@ resource "aws_instance" "macos_node" {
   # soon as the instance is ready to accept connections, this provisioner will complete
   # and the execution will move on to the next resource.
   provisioner "local-exec" {
-    command = templatefile("${path.root}/../templates/macos_ec2_status_check${local.isMacOS ? "" : ".ps1"}.tpl", {
+    command = templatefile("${path.root}/../templates/ec2_status_check${local.isMacOS ? "" : ".ps1"}.tpl", {
       region      = var.resource_location
       instance_id = self.id
     })
@@ -107,5 +108,47 @@ resource "aws_instance" "macos_node" {
     Environment = "Chef Desktop flow"
     Team        = "Chef Desktop"
     Name        = "cdqs-macos-node-${count.index}"
+  }
+}
+
+resource "aws_instance" "linux_node" {
+  count                       = var.linux_node_count
+  ami                         = var.ubuntu_ami_id # ubuntu 18.04 ami
+  instance_type               = var.windows_node_instance_type
+  associate_public_ip_address = true
+  vpc_security_group_ids = [
+    var.allow_ssh,
+    var.allow_all_outgoing_requests
+  ]
+  subnet_id  = var.subnet_id
+  key_name   = var.key_name
+  depends_on = [var.node_depends_on, var.node_setup_depends_on]
+  # Attach instance profile for s3 bucket access.
+  iam_instance_profile = var.iam_instance_profile_name
+
+  user_data = templatefile("${path.root}/../templates/bash_user_data.tpl", {
+    chef_server_url     = var.chef_server_url
+    node_name           = "ubuntu-node-${count.index}"
+    policy_group        = var.policy_group_name
+    policy_name         = var.policy_name
+    validation_key_path = "/home/ubuntu"
+  })
+
+  # Since terraform doesn't provide a way to wait for the instance to come online, 
+  # we use the aws command-line with a max wait of 30mins (15-second interval checks). As
+  # soon as the instance is ready to accept connections, this provisioner will complete
+  # and the execution will move on to the next resource.
+  provisioner "local-exec" {
+    command = templatefile("${path.root}/../templates/ec2_status_check${local.isMacOS ? "" : ".ps1"}.tpl", {
+      region      = var.resource_location
+      instance_id = self.id
+    })
+    interpreter = local.isMacOS ? null : ["Powershell", "-Command"]
+  }
+
+  tags = {
+    Environment = "Chef Desktop flow"
+    Team        = "Chef Desktop"
+    Name        = "cdqs-ubuntu-node-${count.index}"
   }
 }

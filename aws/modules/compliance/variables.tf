@@ -54,7 +54,13 @@ variable "windows_nodes" {
 
 variable "macos_nodes" {
   type        = any
-  description = "Elastic IPs for macos nodes for ssh connection."
+  description = "macOS nodes for ssh connection."
+  default     = []
+}
+
+variable "linux_nodes" {
+  type        = any
+  description = "linux nodes for ssh connection."
   default     = []
 }
 
@@ -67,6 +73,12 @@ variable "macos_setup_depends_on" {
 variable "windows_node_setup" {
   type        = any
   description = "Initial chef client setup of windows nodes"
+  default     = []
+}
+
+variable "linux_node_setup" {
+  type        = any
+  description = "Initial chef client setup of linux nodes"
   default     = []
 }
 
