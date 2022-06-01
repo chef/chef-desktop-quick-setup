@@ -15,23 +15,34 @@ resource "null_resource" "windows_node_setup" {
     timeout  = "15m"
   }
 
-  # Install chef-client and configure it to connect to our server.
-  # This might need to be changed in the future if we plan on upgrading to a newer Terraform version since it will be removed later.
-  # Currently, this is marked deprecated but works fine.
-  provisioner "chef" {
-    client_options  = ["chef_license 'accept'"]
-    run_list        = ["desktop-config::default"]
-    use_policyfile  = true
-    policy_group    = var.policy_group_name
-    policy_name     = var.policy_name
-    node_name       = "windowsnode-${count.index}"
-    server_url      = var.chef_server_url
-    user_name       = var.client_name
-    recreate_client = true
-    version         = "16.13.16"
-    user_key        = file("${path.root}/../keys/${var.client_name}.pem")
-    # Since we have a self signed cert on our chef server we are setting this to :verify_none
-    # In production we should get a certificate and configure for the server and set this to :verify_peer
-    ssl_verify_mode = ":verify_none"
+  provisioner "file" {
+    content     = data.local_file.validator_key.content
+    destination = "C:/chef/validation.pem"
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.root}/../templates/win_setup.ps1.tpl", {
+      chef_server_url = var.chef_server_url
+      node_name       = "windowsnode-${count.index}"
+      policy_name     = var.policy_name
+      policy_group    = var.policy_group_name
+    })
+    destination = "C:/win_setup.ps1"
+  }
+
+  # Installs chef client and create first-boot.json and client.rb
+  provisioner "remote-exec" {
+    inline = [
+      "powershell -ExecutionPolicy Bypass -File C:/win_setup.ps1",
+      "powershell Remove-Item -Path C:/win_setup.ps1"
+    ]
+  }
+
+  # Bootstrap the node with chef-client run and remove the validation.pem from node.
+  provisioner "remote-exec" {
+    inline = [
+      "powershell chef-client -j C:/chef/first-boot.json",
+      "powershell Remove-Item -Path C:/chef/validation.pem"
+    ]
   }
 }

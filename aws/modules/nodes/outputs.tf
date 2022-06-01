@@ -1,6 +1,7 @@
 output "windows_nodes" {
   value = aws_instance.node
   description = "Windows nodes created by the module."
+  sensitive = true
 }
 
 output "macos_nodes" {
