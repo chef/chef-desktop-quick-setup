@@ -22,7 +22,7 @@ resource "null_resource" "automate_server_setup" {
       validator_path    = var.automate_credentials.validator_path
       fqdn              = aws_eip.eip.public_dns
     })
-    destination = "~/automate.setup.sh"
+    destination = "/home/${var.admin_username}/automate.setup.sh"
   }
 
   # Run the setup script which would deploy automate 2 server.

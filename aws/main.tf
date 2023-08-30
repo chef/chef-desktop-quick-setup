@@ -1,6 +1,5 @@
 terraform {
-  # This module has been written with terraform v0.14.6. To allow future upgrades, setting the supported version to be this or higher.
-  required_version = "0.14.6"
+  required_version = "1.4.6"
   required_providers {
     aws = {
       source  = "hashicorp/aws"

@@ -17,12 +17,12 @@ resource "null_resource" "linux_node_setup" {
   provisioner "file" {
     content = data.local_file.validator_key.content
     # We can't write to /etc through ec2-user, so instead the client.rb points to this location.
-    destination = "~/validation.pem"
+    destination = "/home/ubuntu/validation.pem"
   }
 
   provisioner "file" {
     content = file("${path.root}/../scripts/linux_setup.sh")
-    destination = "~/linux_setup.sh"
+    destination = "/home/ubuntu/linux_setup.sh"
   }
 
   # Bootstrap the node with chef-client run and remove the validation.pem from node.

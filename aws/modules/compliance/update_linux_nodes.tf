@@ -53,7 +53,7 @@ resource "null_resource" "update_linux_nodes" {
       automate_server_url = var.automate_server_url
       api_token           = chomp(data.local_file.api_token.content)
     })
-    destination = "~/configure_data_collector.sh"
+    destination = "/home/ubuntu/configure_data_collector.sh"
   }
 
   provisioner "remote-exec" {
@@ -76,7 +76,7 @@ resource "null_resource" "update_linux_nodes" {
       private_key = self.triggers.private_key
     }
     content     = file("${path.root}/../templates/compliance/remove_data_collector_configuration_linux.sh.tpl")
-    destination = "~/remove_data_collector_configuration.sh"
+    destination = "/home/ubuntu/remove_data_collector_configuration.sh"
   }
   provisioner "remote-exec" {
     when = destroy
